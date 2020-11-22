@@ -1,0 +1,390 @@
+---
+openapi: 3.0.0
+info:
+  title: Theta API
+  description: This is the api of the Theta model checking framework. You can find out about it more on http://github.com/ftsrg/theta.
+  version: 2.0.0
+servers:
+- url: http://localhost:8080/
+  description: Server of the Theta application running in docker
+tags:
+- name: cfa
+  description: Reachability checking of error locations in Control Flow Automata (CFA) using CEGAR-based algorithms
+paths:
+  /model:
+    post:
+      tags:
+      - model
+      summary: Upload model file
+      operationId: uploadModel
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - model
+              type: object
+              properties:
+                model:
+                  type: string
+                  description: Path of the input model
+                  format: binary
+      responses:
+        "201":
+          description: model uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateModelResponse'
+        "400":
+          description: Bad file format
+  /model/{modelId}:
+    get:
+      tags:
+      - model
+      description: Fetches the metadata for a model
+      operationId: getModel
+      parameters:
+      - name: modelId
+        in: path
+        description: The model id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Successfully fetched the model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetModelFileResponse'
+        "404":
+          description: Model with the given id not found
+        "500":
+          description: The error response if something goes wrong.
+    post:
+      tags:
+      - job
+      description: Starts analysis process on the model with the given parameters
+      operationId: startAnalysis
+      parameters:
+      - name: modelId
+        in: path
+        description: The model id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CfaConfig'
+      responses:
+        "200":
+          description: Analysis started successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StartProcessResponse'
+        "404":
+          description: Model with the given id not found
+        "500":
+          description: The error response if something goes wrong.
+  /jobs:
+    get:
+      tags:
+        - job
+      description: Get all jobs
+      operationId: getAllJobs
+      responses:
+        "200":
+          description: Get all jobs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllJobsResponse'
+  /jobs/{jobId}:
+    get:
+      tags:
+      - job
+      description: Get the result of the analysis with the given Id
+      operationId: getAnalysisResult
+      parameters:
+      - name: modelId
+        in: path
+        description: The model id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: jobId
+        in: path
+        description: The analysis job id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Analysis finished
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/AnalysisBenchmarkResponse'
+                - $ref: '#/components/schemas/AnalysisLog'
+        "102":
+          description: Analysis process not finished yet
+        "404":
+          description: Process with the given id not found
+        "500":
+          description: The error response if something goes wrong.
+  /jobs/{jobId}/cex:
+    get:
+      tags:
+        - job
+      description: Get the counterexample of the analysis with the given Id
+      operationId: getAnalysisResult
+components:
+  schemas:
+    GetModelFileResponse:
+      required:
+      - content
+      - fileName
+      type: object
+      properties:
+        fileName:
+          type: string
+          description: fileName of the newly uploaded CFA model
+        content:
+          type: string
+          description: The content of the file
+          format: binary
+    CreateModelResponse:
+      required:
+      - modelId
+      type: object
+      properties:
+        modelId:
+          type: string
+          description: the generated id of the model file
+          format: uuid
+        fileName:
+          type: string
+          description: fileName of the newly uploaded model
+        modelType:
+          type: string
+          description: type of the model
+    StartProcessResponse:
+      required:
+      - processId
+      type: object
+      properties:
+        processId:
+          type: string
+          description: the generated id of process
+          format: uuid
+    CfaConfig:
+      type: object
+      properties:
+        domain:
+          type: string
+          description: Abstract domain
+          default: PRED_CART
+          enum:
+          - EXPL
+          - PRED_BOOL
+          - PRED_CART
+          - PRED_SPLIT
+        refinement:
+          type: string
+          description: Refinement strategy
+          default: SEQ_ITP
+          enum:
+          - FW_BIN_ITP
+          - BW_BIN_ITP
+          - SEQ_ITP
+          - MULTI_SEQ
+          - UNSAT_CORE
+        search:
+          type: string
+          description: Search strategy
+          default: BFS
+          enum:
+          - BFS
+          - DFS
+          - ERR
+        predSplit:
+          type: string
+          description: Predicate splitting (for predicate abstraction)
+          default: WHOLE
+          enum:
+          - WHOLE
+          - CONJUNCTS
+          - ATOMS
+        precGranularity:
+          type: string
+          description: Precision granularity
+          default: GLOBAL
+          enum:
+          - GLOBAL
+          - LOCAL
+        encoding:
+          type: string
+          description: Block encoding
+          default: LBE
+          enum:
+          - SBE
+          - LBE
+        initPrec:
+          type: string
+          description: Initial precision of abstraction
+          default: EMPTY
+          enum:
+          - EMPTY
+          - ALLVARS
+        maxEnum:
+          type: number
+          description: Maximal number of explicitly enumerated successors ( zero is  unlimited)
+          default: 0
+        cexFile:
+          type: boolean
+          description: Should create counterexample
+          default: false
+        benchmark:
+          type: boolean
+          description: Benchmark mode (only print metrics)
+          default: false
+        visualize:
+          type: string
+          description: Visualize CFA to a file without running the algorithm
+        metrics:
+          type: boolean
+          description: Print metrics about the CFA without running the algorithm
+          default: false
+        stacktrace:
+          type: boolean
+          description: Print full stack trace in case of exception
+          default: false
+        logLevel:
+          type: string
+          description: Detailedness of logging
+          default: SUBSTEP
+          enum:
+          - RESULT
+          - MAINSTEP
+          - SUBSTEP
+          - INFO
+          - DETAIL
+          - VERBOSE
+    AnalysisBenchmark:
+      type: object
+      properties:
+        safe:
+          type: boolean
+        timeElapsed:
+          type: number
+        algorithmTimeMs:
+          type: number
+        abstractorTimeMs:
+          type: number
+        refinerTimeMs:
+          type: number
+        iterations:
+          type: number
+        argSize:
+          type: number
+        argDepth:
+          type: number
+        argMeanBranchingFactor:
+          type: number
+    AnalysisBenchmarkResponse:
+      type: object
+      properties:
+        analysisBenchmark:
+          $ref: '#/components/schemas/AnalysisBenchmark'
+        cex:
+          type: string
+          description: Counterexample file
+          format: byte
+        visualized:
+          type: string
+          description: Visualized model file
+          format: byte
+    AnalysisLog:
+      type: object
+      properties:
+        safe:
+          type: string
+        log:
+          type: string
+          description: Log file
+          format: byte
+        cex:
+          type: string
+          description: Counterexample file
+          format: byte
+        visualized:
+          type: string
+          description: Visualized model file
+          format: byte
+    JobResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+          format: uuid
+        modelId:
+          type: string
+          format: uuid
+        configId:
+          type: string
+          format: uuid
+    AllJobsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/JobResponse'
+  responses:
+    ProcessNotFinished:
+      description: Analysis process not finished yet
+    ModelNotFound:
+      description: Model with the given id not found
+    ProcessNotFound:
+      description: Process with the given id not found
+    ErrorResponse:
+      description: The error response if something goes wrong.
+  parameters:
+    modelId:
+      name: modelId
+      in: path
+      description: The model id
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        format: uuid
+    jobId:
+      name: jobId
+      in: path
+      description: The analysis job id
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        format: uuid

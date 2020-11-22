@@ -17,7 +17,8 @@ include(
         "xta-cli",
         "xsts",
         "xsts-analysis",
-        "xsts-cli"
+        "xsts-cli",
+        "cloud"
 )
 
 for (project in rootProject.children) {
