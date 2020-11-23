@@ -13,7 +13,7 @@ public class JobEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "uuid-char")
-    @Column(updatable = false, columnDefinition = "char(36)")
+    @Column(name = "jobId")
     private UUID jobId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })

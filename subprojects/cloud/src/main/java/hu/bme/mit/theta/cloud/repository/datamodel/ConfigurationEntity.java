@@ -13,7 +13,7 @@ public class ConfigurationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "uuid-char")
-    @Column(updatable = false, columnDefinition = "char(36)")
+    @Column(name = "configurationId")
     private UUID configurationId;
 
     @Column
