@@ -17,7 +17,7 @@ public class ConfigurationEntity {
     private UUID configurationId;
 
     @Column
-    private String domain;
+    private String domainName;
 
     @Column
     private String refinement;

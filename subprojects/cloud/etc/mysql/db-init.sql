@@ -4,14 +4,36 @@ USE theta_db;
 
 CREATE TABLE IF NOT EXISTS model (
   modelId CHAR(36) NOT NULL PRIMARY KEY,
-  modelType VARCHAR(255),
-  fileName VARCHAR(255),
+  modelType VARCHAR(10),
+  fileName VARCHAR(100),
   fileSize BIGINT,
   creationTime TIMESTAMP);
 
-CREATE TABLE IF NOT EXISTS model (
-  modelId CHAR(36) NOT NULL PRIMARY KEY,
-  modelType VARCHAR(255),
-  fileName VARCHAR(255),
-  fileSize BIGINT,
+CREATE TABLE IF NOT EXISTS configuration (
+  configurationId CHAR(36) NOT NULL PRIMARY KEY,
+  domainName VARCHAR(60),
+  refinement VARCHAR(60),
+  predSplit VARCHAR(60),
+  errorLoc VARCHAR(60),
+  precGranularity VARCHAR(60),
+  encoding VARCHAR(60),
+  maxEnum SMALLINT,
+  initPrec VARCHAR(60),
+  pruneStrategy VARCHAR(60),
+  logLevel VARCHAR(60),
+  benchmarkMode BOOLEAN,
+  cexFile BOOLEAN,
+  visualize BOOLEAN,
+  metrics BOOLEAN,
+  stacktrace BOOLEAN,
+  creationTime TIMESTAMP);
+
+CREATE TABLE IF NOT EXISTS job (
+  jobId CHAR(36) NOT NULL PRIMARY KEY,
+  modelId CHAR(36) REFERENCES model(modelId),
+  configId CHAR(36) REFERENCES configuration(configurationId),
+  outputFile VARCHAR(60),
+  cexFile VARCHAR(60),
+  visualizedModel VARCHAR(60),
+
   creationTime TIMESTAMP);

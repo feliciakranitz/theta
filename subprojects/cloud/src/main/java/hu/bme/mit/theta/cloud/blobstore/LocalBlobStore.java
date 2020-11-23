@@ -31,8 +31,7 @@ public class LocalBlobStore {
         Path filePath = Paths.get(basePath + Id);
         File file = filePath.toFile();
         try {
-            InputStream fileStream = new FileInputStream(file);
-            return fileStream;
+            return new FileInputStream(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
