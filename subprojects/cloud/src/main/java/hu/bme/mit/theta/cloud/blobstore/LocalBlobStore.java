@@ -1,5 +1,7 @@
 package hu.bme.mit.theta.cloud.blobstore;
 
+import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,13 +17,13 @@ public class LocalBlobStore {
         this.basePath = basePath;
     }
 
-    public String saveBlob(InputStream inputStream, UUID jobId, String blobName) throws Exception {
+    public String saveModelBlob(InputStream inputStream, String blobName) throws Exception {
         FileSystem fs = FileSystems.getDefault();
 
-        Path outputDir = fs.getPath(basePath, jobId.toString());
+        Path outputDir = fs.getPath(basePath, "models");
         Files.createDirectories(outputDir);
 
-        Path outputFilePath = fs.getPath(basePath, jobId.toString(), blobName);
+        Path outputFilePath = fs.getPath(basePath, "models", blobName);
         Files.copy(inputStream, outputFilePath);
 
         return outputFilePath.toString();
@@ -29,6 +31,7 @@ public class LocalBlobStore {
 
     public InputStream getBlob(UUID Id) {
         Path filePath = Paths.get(basePath + Id);
+        System.out.println(filePath);
         File file = filePath.toFile();
         try {
             return new FileInputStream(file);

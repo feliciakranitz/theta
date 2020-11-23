@@ -10,6 +10,7 @@ import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
 import hu.bme.mit.theta.solver.SolverFactory;
 import hu.bme.mit.theta.solver.z3.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,16 +19,17 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
 public class CfaService {
 
     private final LocalBlobStore localBlobStore;
-    private final SolverFactory solverFactory =  Z3SolverFactory.getInstance();
+    //private final SolverFactory solverFactory =  Z3SolverFactory.getInstance();
 
     @Autowired
     private ModelRepository modelRepository;
 
-    public CfaService(LocalBlobStore localBlobStore) {
-        this.localBlobStore = localBlobStore;
+    public CfaService() {
+        this.localBlobStore = new LocalBlobStore("/tmp/theta");
     }
 
     public CreateModelResponse createModel(MultipartFile modelFile) {
@@ -48,7 +50,8 @@ public class CfaService {
 
         //save in blob store
         try {
-            localBlobStore.saveBlob(modelFile.getInputStream(), modelEntity.getModelId(), modelEntity.getFileName());
+            localBlobStore.saveModelBlob(modelFile.getInputStream(), modelEntity.getFileName());
+            System.out.println("here saving file in the blobstore");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -79,7 +82,7 @@ public class CfaService {
             case "CFA":
                 runCfaAnalysis();
                 break;
-            case "STS":
+            case "SYSTEM":
                 runStsAnalysis();
                 break;
             case "XTA":

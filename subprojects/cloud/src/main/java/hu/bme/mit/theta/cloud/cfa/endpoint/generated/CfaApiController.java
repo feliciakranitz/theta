@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@RestController
 public class CfaApiController implements CfaApi {
 
     private static final Logger log = LoggerFactory.getLogger(CfaApiController.class);
@@ -86,7 +86,7 @@ public class CfaApiController implements CfaApi {
         return new ResponseEntity<List<StartProcessResponse>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<CreateModelResponse> uploadCfa() {
+    public ResponseEntity<CreateModelResponse> uploadCfa(MultipartFile model) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
