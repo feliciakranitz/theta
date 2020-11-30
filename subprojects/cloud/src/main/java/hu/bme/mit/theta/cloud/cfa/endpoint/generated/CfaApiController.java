@@ -44,7 +44,7 @@ public class CfaApiController implements CfaApi {
         return Optional.ofNullable(request);
     }
 
-    public ResponseEntity<GetModelFileResponse> getCfaModel(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId) {
+    public ResponseEntity<?> getCfaModel(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -55,7 +55,7 @@ public class CfaApiController implements CfaApi {
             }
         }
 
-        return new ResponseEntity<GetModelFileResponse>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     public ResponseEntity<InlineResponse200> getProcessResult(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId,@Parameter(in = ParameterIn.PATH, description = "The analysis process id", required=true, schema=@Schema()) @PathVariable("processId") UUID processId) {

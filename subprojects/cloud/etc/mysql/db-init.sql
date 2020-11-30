@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS model (
   modelType VARCHAR(10),
   fileName VARCHAR(100),
   fileSize BIGINT,
+  visualizedModel VARCHAR(60),
   creationTime TIMESTAMP);
 
 CREATE TABLE IF NOT EXISTS configuration (
@@ -36,6 +37,6 @@ CREATE TABLE IF NOT EXISTS job (
   CONSTRAINT fk_config FOREIGN KEY (configId) REFERENCES configuration(configurationId),
   outputFile VARCHAR(60),
   cexFile VARCHAR(60),
-  visualizedModel VARCHAR(60),
+  notificationAddress VARCHAR(50),
 
   creationTime TIMESTAMP);

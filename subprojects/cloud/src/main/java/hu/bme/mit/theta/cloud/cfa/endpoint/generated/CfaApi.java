@@ -45,7 +45,7 @@ public interface CfaApi {
     @RequestMapping(value = "/cfa/{modelId}",
             produces = {"application/json"},
             method = RequestMethod.GET)
-    ResponseEntity<GetModelFileResponse> getCfaModel(@Parameter(in = ParameterIn.PATH, description = "The model id", required = true, schema = @Schema()) @PathVariable("modelId") UUID modelId);
+    ResponseEntity<?> getCfaModel(@Parameter(in = ParameterIn.PATH, description = "The model id", required = true, schema = @Schema()) @PathVariable("modelId") UUID modelId);
 
 
     @Operation(summary = "", description = "Fetches the metadata for a CFA model", tags = {"cfa"})

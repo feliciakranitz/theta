@@ -1,5 +1,7 @@
 package hu.bme.mit.theta.cloud.blobstore;
 
+import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -17,13 +19,13 @@ public class LocalBlobStore {
         this.basePath = basePath;
     }
 
-    public String saveModelBlob(InputStream inputStream, String blobName) throws Exception {
+    public String saveModelBlob(InputStream inputStream, ModelEntity model) throws Exception {
         FileSystem fs = FileSystems.getDefault();
 
         Path outputDir = fs.getPath(basePath, "models");
         Files.createDirectories(outputDir);
 
-        Path outputFilePath = fs.getPath(basePath, "models", blobName);
+        Path outputFilePath = fs.getPath(basePath, "models",model.getModelId() + "."+model.getModelType());
         Files.copy(inputStream, outputFilePath);
 
         return outputFilePath.toString();
@@ -39,5 +41,12 @@ public class LocalBlobStore {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public FileSystemResource getModelBlob(ModelEntity modelEntity) {
+        Path filePath = Paths.get(basePath + "/models/" + modelEntity.getModelId() + "." + modelEntity.getModelType());
+        System.out.println(filePath);
+        File file = filePath.toFile();
+        return new FileSystemResource(filePath);
     }
 }

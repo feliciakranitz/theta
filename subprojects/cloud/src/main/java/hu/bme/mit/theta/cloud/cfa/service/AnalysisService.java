@@ -8,8 +8,9 @@ import hu.bme.mit.theta.cloud.repository.ModelRepository;
 import hu.bme.mit.theta.cloud.repository.datamodel.ConfigurationEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
 import hu.bme.mit.theta.solver.SolverFactory;
-import hu.bme.mit.theta.solver.z3.*;
+import hu.bme.mit.theta.solver.z3.Z3SolverFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,15 +21,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class CfaService {
+public class AnalysisService {
 
     private final LocalBlobStore localBlobStore;
-    //private final SolverFactory solverFactory =  Z3SolverFactory.getInstance();
+    private final SolverFactory solverFactory =  Z3SolverFactory.getInstance();
 
     @Autowired
     private ModelRepository modelRepository;
 
-    public CfaService() {
+    public AnalysisService() {
         this.localBlobStore = new LocalBlobStore("/tmp/theta");
     }
 
@@ -50,8 +51,7 @@ public class CfaService {
 
         //save in blob store
         try {
-            localBlobStore.saveModelBlob(modelFile.getInputStream(), modelEntity.getFileName());
-            System.out.println("here saving file in the blobstore");
+            localBlobStore.saveModelBlob(modelFile.getInputStream(), modelEntity);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,16 +62,17 @@ public class CfaService {
         return createModelResponse;
    }
 
-   public void getModelMetadata(UUID modelId) {
-        Optional<ModelEntity> modelEntity = modelRepository.findById(modelId);
-
+   public ModelEntity getModelMetadata(UUID modelId) throws NotFoundException {
+        return modelRepository.findById(modelId).orElseThrow(this::modelNotFoundException);
    }
 
-   public InputStream getModelFileContent(UUID modelId) {
-        return localBlobStore.getBlob(modelId);
+   public FileSystemResource getModelFileContent(UUID modelId) throws NotFoundException {
+        return localBlobStore.getModelBlob(getModelMetadata(modelId));
    }
 
    public void createConfiguration(ModelConfig modelConfig) {
+       ConfigurationEntity configurationEntity = new ConfigurationEntity();
+       configurationEntity.setDomainName(modelConfig.getDomain().toString());
 
    }
 
