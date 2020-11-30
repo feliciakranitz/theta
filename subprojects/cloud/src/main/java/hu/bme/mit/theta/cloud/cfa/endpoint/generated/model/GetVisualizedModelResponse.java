@@ -1,37 +1,37 @@
 package hu.bme.mit.theta.cloud.cfa.endpoint.generated.model;
 
+import java.io.File;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.core.io.Resource;
 
 /**
- * Body
+ * GetVisualizedModelResponse
  */
 
 
 
-public class Body   {
-  @JsonProperty("model")
-  private Resource model = null;
+public class GetVisualizedModelResponse   {
+  @JsonProperty("cex")
+  private File cex = null;
 
-  public Body model(Resource model) {
-    this.model = model;
+  public GetVisualizedModelResponse cex(File cex) {
+    this.cex = cex;
     return this;
   }
 
   /**
-   * Path of the input model
-   * @return model
+   * Visualized model file
+   * @return cex
    **/
-  @Schema(required = true, description = "Path of the input model")
-    public Resource getModel() {
-    return model;
+  @Schema(description = "Visualized model file")
+    public File getCex() {
+    return cex;
   }
 
-  public void setModel(Resource model) {
-    this.model = model;
+  public void setCex(File cex) {
+    this.cex = cex;
   }
 
 
@@ -43,21 +43,21 @@ public class Body   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Body body = (Body) o;
-    return Objects.equals(this.model, body.model);
+    GetVisualizedModelResponse getVisualizedModelResponse = (GetVisualizedModelResponse) o;
+    return Objects.equals(this.cex, getVisualizedModelResponse.cex);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(model);
+    return Objects.hash(cex);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Body {\n");
+    sb.append("class GetVisualizedModelResponse {\n");
     
-    sb.append("    model: ").append(toIndentedString(model)).append("\n");
+    sb.append("    cex: ").append(toIndentedString(cex)).append("\n");
     sb.append("}");
     return sb.toString();
   }

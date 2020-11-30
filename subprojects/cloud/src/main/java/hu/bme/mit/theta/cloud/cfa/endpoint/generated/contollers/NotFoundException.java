@@ -1,4 +1,4 @@
-package hu.bme.mit.theta.cloud.cfa.endpoint.generated;
+package hu.bme.mit.theta.cloud.cfa.endpoint.generated.contollers;
 
 public class NotFoundException extends ApiException {
     private int code;

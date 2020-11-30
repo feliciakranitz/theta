@@ -1,4 +1,4 @@
-package hu.bme.mit.theta.cloud.cfa.endpoint.generated;
+package hu.bme.mit.theta.cloud.cfa.endpoint.generated.contollers;
 
 public class ApiException extends Exception {
     private int code;

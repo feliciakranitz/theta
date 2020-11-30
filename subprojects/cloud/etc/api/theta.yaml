@@ -283,8 +283,6 @@ components:
         modelType:
           type: string
           description: type of the model
-        modelMetrics:
-          $ref: '#/components/schemas/GetModelMetricsResponse'
     StartProcessResponse:
       required:
       - processId
@@ -448,7 +446,7 @@ components:
     GetVisualizedModelResponse:
       type: object
       properties:
-        cex:
+        visualizedModel:
           type: string
           description: Visualized model file
           format: byte

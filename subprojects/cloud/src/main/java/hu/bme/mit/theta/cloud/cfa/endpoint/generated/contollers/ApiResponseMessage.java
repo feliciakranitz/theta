@@ -1,4 +1,4 @@
-package hu.bme.mit.theta.cloud.cfa.endpoint.generated;
+package hu.bme.mit.theta.cloud.cfa.endpoint.generated.contollers;
 
 import javax.xml.bind.annotation.XmlTransient;
 

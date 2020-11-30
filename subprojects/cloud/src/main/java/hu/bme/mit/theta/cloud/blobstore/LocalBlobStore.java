@@ -19,34 +19,30 @@ public class LocalBlobStore {
         this.basePath = basePath;
     }
 
+    public String getBasePath() {
+        return basePath;
+    }
+
     public String saveModelBlob(InputStream inputStream, ModelEntity model) throws Exception {
         FileSystem fs = FileSystems.getDefault();
 
         Path outputDir = fs.getPath(basePath, "models");
         Files.createDirectories(outputDir);
 
-        Path outputFilePath = fs.getPath(basePath, "models",model.getModelId() + "."+model.getModelType());
+        Path outputFilePath = fs.getPath(basePath, "models",model.getModelId() + "." + model.getModelType());
         Files.copy(inputStream, outputFilePath);
 
         return outputFilePath.toString();
     }
 
-    public InputStream getBlob(UUID Id) {
-        Path filePath = Paths.get(basePath + Id);
+    public FileSystemResource getVisualizedBlob(UUID modelId, String fileFormat) {
+        Path filePath = Paths.get(basePath + "/visualized/" + modelId + "." + fileFormat);
         System.out.println(filePath);
-        File file = filePath.toFile();
-        try {
-            return new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return new FileSystemResource(filePath);
     }
 
     public FileSystemResource getModelBlob(ModelEntity modelEntity) {
         Path filePath = Paths.get(basePath + "/models/" + modelEntity.getModelId() + "." + modelEntity.getModelType());
-        System.out.println(filePath);
-        File file = filePath.toFile();
         return new FileSystemResource(filePath);
     }
 }

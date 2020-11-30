@@ -4,34 +4,33 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.core.io.Resource;
 
 /**
- * Body
+ * CexFileResponse
  */
 
 
 
-public class Body   {
-  @JsonProperty("model")
-  private Resource model = null;
+public class CexFileResponse   {
+  @JsonProperty("cex")
+  private byte[] cex = null;
 
-  public Body model(Resource model) {
-    this.model = model;
+  public CexFileResponse cex(byte[] cex) {
+    this.cex = cex;
     return this;
   }
 
   /**
-   * Path of the input model
-   * @return model
+   * Counterexample file
+   * @return cex
    **/
-  @Schema(required = true, description = "Path of the input model")
-    public Resource getModel() {
-    return model;
+  @Schema(description = "Counterexample file")
+    public byte[] getCex() {
+    return cex;
   }
 
-  public void setModel(Resource model) {
-    this.model = model;
+  public void setCex(byte[] cex) {
+    this.cex = cex;
   }
 
 
@@ -43,21 +42,21 @@ public class Body   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Body body = (Body) o;
-    return Objects.equals(this.model, body.model);
+    CexFileResponse cexFileResponse = (CexFileResponse) o;
+    return Objects.equals(this.cex, cexFileResponse.cex);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(model);
+    return Objects.hash(cex);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Body {\n");
+    sb.append("class CexFileResponse {\n");
     
-    sb.append("    model: ").append(toIndentedString(model)).append("\n");
+    sb.append("    cex: ").append(toIndentedString(cex)).append("\n");
     sb.append("}");
     return sb.toString();
   }

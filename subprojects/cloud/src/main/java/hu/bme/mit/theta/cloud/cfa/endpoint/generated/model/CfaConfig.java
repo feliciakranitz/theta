@@ -8,12 +8,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
 /**
- * ModelConfig
+ * CfaConfig
  */
 
 
 
-public class ModelConfig {
+public class CfaConfig   {
   /**
    * Abstract domain
    */
@@ -318,7 +318,7 @@ public class ModelConfig {
   @JsonProperty("logLevel")
   private LogLevelEnum logLevel = LogLevelEnum.SUBSTEP;
 
-  public ModelConfig domain(DomainEnum domain) {
+  public CfaConfig domain(DomainEnum domain) {
     this.domain = domain;
     return this;
   }
@@ -336,7 +336,7 @@ public class ModelConfig {
     this.domain = domain;
   }
 
-  public ModelConfig refinement(RefinementEnum refinement) {
+  public CfaConfig refinement(RefinementEnum refinement) {
     this.refinement = refinement;
     return this;
   }
@@ -354,7 +354,7 @@ public class ModelConfig {
     this.refinement = refinement;
   }
 
-  public ModelConfig search(SearchEnum search) {
+  public CfaConfig search(SearchEnum search) {
     this.search = search;
     return this;
   }
@@ -372,7 +372,7 @@ public class ModelConfig {
     this.search = search;
   }
 
-  public ModelConfig predSplit(PredSplitEnum predSplit) {
+  public CfaConfig predSplit(PredSplitEnum predSplit) {
     this.predSplit = predSplit;
     return this;
   }
@@ -390,7 +390,7 @@ public class ModelConfig {
     this.predSplit = predSplit;
   }
 
-  public ModelConfig precGranularity(PrecGranularityEnum precGranularity) {
+  public CfaConfig precGranularity(PrecGranularityEnum precGranularity) {
     this.precGranularity = precGranularity;
     return this;
   }
@@ -408,7 +408,7 @@ public class ModelConfig {
     this.precGranularity = precGranularity;
   }
 
-  public ModelConfig encoding(EncodingEnum encoding) {
+  public CfaConfig encoding(EncodingEnum encoding) {
     this.encoding = encoding;
     return this;
   }
@@ -426,7 +426,7 @@ public class ModelConfig {
     this.encoding = encoding;
   }
 
-  public ModelConfig initPrec(InitPrecEnum initPrec) {
+  public CfaConfig initPrec(InitPrecEnum initPrec) {
     this.initPrec = initPrec;
     return this;
   }
@@ -444,7 +444,7 @@ public class ModelConfig {
     this.initPrec = initPrec;
   }
 
-  public ModelConfig maxEnum(int maxEnum) {
+  public CfaConfig maxEnum(int maxEnum) {
     this.maxEnum = maxEnum;
     return this;
   }
@@ -462,7 +462,7 @@ public class ModelConfig {
     this.maxEnum = maxEnum;
   }
 
-  public ModelConfig cexFile(Boolean cexFile) {
+  public CfaConfig cexFile(Boolean cexFile) {
     this.cexFile = cexFile;
     return this;
   }
@@ -480,7 +480,7 @@ public class ModelConfig {
     this.cexFile = cexFile;
   }
 
-  public ModelConfig benchmark(Boolean benchmark) {
+  public CfaConfig benchmark(Boolean benchmark) {
     this.benchmark = benchmark;
     return this;
   }
@@ -498,7 +498,7 @@ public class ModelConfig {
     this.benchmark = benchmark;
   }
 
-  public ModelConfig visualize(String visualize) {
+  public CfaConfig visualize(String visualize) {
     this.visualize = visualize;
     return this;
   }
@@ -516,7 +516,7 @@ public class ModelConfig {
     this.visualize = visualize;
   }
 
-  public ModelConfig metrics(Boolean metrics) {
+  public CfaConfig metrics(Boolean metrics) {
     this.metrics = metrics;
     return this;
   }
@@ -534,7 +534,7 @@ public class ModelConfig {
     this.metrics = metrics;
   }
 
-  public ModelConfig stacktrace(Boolean stacktrace) {
+  public CfaConfig stacktrace(Boolean stacktrace) {
     this.stacktrace = stacktrace;
     return this;
   }
@@ -552,7 +552,7 @@ public class ModelConfig {
     this.stacktrace = stacktrace;
   }
 
-  public ModelConfig logLevel(LogLevelEnum logLevel) {
+  public CfaConfig logLevel(LogLevelEnum logLevel) {
     this.logLevel = logLevel;
     return this;
   }
@@ -579,21 +579,21 @@ public class ModelConfig {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ModelConfig modelConfig = (ModelConfig) o;
-    return Objects.equals(this.domain, modelConfig.domain) &&
-        Objects.equals(this.refinement, modelConfig.refinement) &&
-        Objects.equals(this.search, modelConfig.search) &&
-        Objects.equals(this.predSplit, modelConfig.predSplit) &&
-        Objects.equals(this.precGranularity, modelConfig.precGranularity) &&
-        Objects.equals(this.encoding, modelConfig.encoding) &&
-        Objects.equals(this.initPrec, modelConfig.initPrec) &&
-        Objects.equals(this.maxEnum, modelConfig.maxEnum) &&
-        Objects.equals(this.cexFile, modelConfig.cexFile) &&
-        Objects.equals(this.benchmark, modelConfig.benchmark) &&
-        Objects.equals(this.visualize, modelConfig.visualize) &&
-        Objects.equals(this.metrics, modelConfig.metrics) &&
-        Objects.equals(this.stacktrace, modelConfig.stacktrace) &&
-        Objects.equals(this.logLevel, modelConfig.logLevel);
+    CfaConfig cfaConfig = (CfaConfig) o;
+    return Objects.equals(this.domain, cfaConfig.domain) &&
+        Objects.equals(this.refinement, cfaConfig.refinement) &&
+        Objects.equals(this.search, cfaConfig.search) &&
+        Objects.equals(this.predSplit, cfaConfig.predSplit) &&
+        Objects.equals(this.precGranularity, cfaConfig.precGranularity) &&
+        Objects.equals(this.encoding, cfaConfig.encoding) &&
+        Objects.equals(this.initPrec, cfaConfig.initPrec) &&
+        Objects.equals(this.maxEnum, cfaConfig.maxEnum) &&
+        Objects.equals(this.cexFile, cfaConfig.cexFile) &&
+        Objects.equals(this.benchmark, cfaConfig.benchmark) &&
+        Objects.equals(this.visualize, cfaConfig.visualize) &&
+        Objects.equals(this.metrics, cfaConfig.metrics) &&
+        Objects.equals(this.stacktrace, cfaConfig.stacktrace) &&
+        Objects.equals(this.logLevel, cfaConfig.logLevel);
   }
 
   @Override
@@ -604,7 +604,7 @@ public class ModelConfig {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ModelConfig {\n");
+    sb.append("class CfaConfig {\n");
     
     sb.append("    domain: ").append(toIndentedString(domain)).append("\n");
     sb.append("    refinement: ").append(toIndentedString(refinement)).append("\n");

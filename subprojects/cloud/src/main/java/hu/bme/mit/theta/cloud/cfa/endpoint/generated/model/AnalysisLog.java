@@ -48,10 +48,10 @@ public class AnalysisLog  implements OneOfinlineResponse200 {
   }
 
   /**
-   * Counterexample file
+   * Log file
    * @return log
    **/
-  @Schema(description = "Counterexample file")
+  @Schema(description = "Log file")
     public byte[] getLog() {
     return log;
   }

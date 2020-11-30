@@ -2,16 +2,17 @@ package hu.bme.mit.theta.cloud.cfa.endpoint.generated.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 
 /**
- * CreateModelResponse
+ * GetModelMetadataResponse
  */
 
 
 
-public class CreateModelResponse   {
+public class GetModelMetadataResponse   {
   @JsonProperty("modelId")
   private UUID modelId = null;
 
@@ -21,7 +22,7 @@ public class CreateModelResponse   {
   @JsonProperty("modelType")
   private String modelType = null;
 
-  public CreateModelResponse modelId(UUID modelId) {
+  public GetModelMetadataResponse modelId(UUID modelId) {
     this.modelId = modelId;
     return this;
   }
@@ -30,7 +31,7 @@ public class CreateModelResponse   {
    * the generated id of the model file
    * @return modelId
    **/
-  @Schema(required = true, description = "the generated id of the model file")
+  @Schema(description = "the generated id of the model file")
     public UUID getModelId() {
     return modelId;
   }
@@ -39,7 +40,7 @@ public class CreateModelResponse   {
     this.modelId = modelId;
   }
 
-  public CreateModelResponse fileName(String fileName) {
+  public GetModelMetadataResponse fileName(String fileName) {
     this.fileName = fileName;
     return this;
   }
@@ -57,7 +58,7 @@ public class CreateModelResponse   {
     this.fileName = fileName;
   }
 
-  public CreateModelResponse modelType(String modelType) {
+  public GetModelMetadataResponse modelType(String modelType) {
     this.modelType = modelType;
     return this;
   }
@@ -75,6 +76,7 @@ public class CreateModelResponse   {
     this.modelType = modelType;
   }
 
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -83,10 +85,10 @@ public class CreateModelResponse   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    CreateModelResponse createModelResponse = (CreateModelResponse) o;
-    return Objects.equals(this.modelId, createModelResponse.modelId) &&
-        Objects.equals(this.fileName, createModelResponse.fileName) &&
-        Objects.equals(this.modelType, createModelResponse.modelType);
+    GetModelMetadataResponse getModelMetadataResponse = (GetModelMetadataResponse) o;
+    return Objects.equals(this.modelId, getModelMetadataResponse.modelId) &&
+        Objects.equals(this.fileName, getModelMetadataResponse.fileName) &&
+        Objects.equals(this.modelType, getModelMetadataResponse.modelType);
   }
 
   @Override
@@ -97,7 +99,7 @@ public class CreateModelResponse   {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class CreateModelResponse {\n");
+    sb.append("class GetModelMetadataResponse {\n");
     
     sb.append("    modelId: ").append(toIndentedString(modelId)).append("\n");
     sb.append("    fileName: ").append(toIndentedString(fileName)).append("\n");
