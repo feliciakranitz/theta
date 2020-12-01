@@ -13,11 +13,7 @@ import java.util.UUID;
 
 public class LocalBlobStore {
 
-    private final String basePath;
-
-    public LocalBlobStore(String basePath) {
-        this.basePath = basePath;
-    }
+    private final String basePath = "/tmp/theta";
 
     public String getBasePath() {
         return basePath;
@@ -35,14 +31,14 @@ public class LocalBlobStore {
         return outputFilePath.toString();
     }
 
-    public FileSystemResource getVisualizedBlob(UUID modelId, String fileFormat) {
-        Path filePath = Paths.get(basePath + "/visualized/" + modelId + "." + fileFormat);
-        System.out.println(filePath);
+    public FileSystemResource getModelBlob(ModelEntity modelEntity) {
+        Path filePath = Paths.get(basePath + "/models/" + modelEntity.getModelId() + "." + modelEntity.getModelType());
         return new FileSystemResource(filePath);
     }
 
-    public FileSystemResource getModelBlob(ModelEntity modelEntity) {
-        Path filePath = Paths.get(basePath + "/models/" + modelEntity.getModelId() + "." + modelEntity.getModelType());
+    public FileSystemResource getVisualizedBlob(UUID modelId, String fileFormat) {
+        Path filePath = Paths.get(basePath + "/visualized/" + modelId + "." + fileFormat);
+        System.out.println(filePath);
         return new FileSystemResource(filePath);
     }
 }

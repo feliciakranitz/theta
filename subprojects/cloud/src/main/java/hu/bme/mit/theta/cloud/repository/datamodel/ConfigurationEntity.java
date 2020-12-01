@@ -32,10 +32,13 @@ public class ConfigurationEntity {
     private String precGranularity;
 
     @Column
+    private String search;
+
+    @Column
     private String encoding;
 
     @Column
-    private Long maxEnum;
+    private Integer maxEnum;
 
     @Column
     private String initPrec;
@@ -51,12 +54,6 @@ public class ConfigurationEntity {
 
     @Column
     private Boolean cexFile;
-
-    @Column
-    private Boolean visualize;
-
-    @Column
-    private Boolean metrics;
 
     @Column
     private Boolean stacktrace;
@@ -113,14 +110,6 @@ public class ConfigurationEntity {
         this.encoding = encoding;
     }
 
-    public Long getMaxEnum() {
-        return maxEnum;
-    }
-
-    public void setMaxEnum(Long maxEnum) {
-        this.maxEnum = maxEnum;
-    }
-
     public String getInitPrec() {
         return initPrec;
     }
@@ -161,27 +150,27 @@ public class ConfigurationEntity {
         this.cexFile = cexFile;
     }
 
-    public Boolean getVisualize() {
-        return visualize;
-    }
-
-    public void setVisualize(Boolean visualize) {
-        this.visualize = visualize;
-    }
-
-    public Boolean getMetrics() {
-        return metrics;
-    }
-
-    public void setMetrics(Boolean metrics) {
-        this.metrics = metrics;
-    }
-
     public Boolean getStacktrace() {
         return stacktrace;
     }
 
     public void setStacktrace(Boolean stacktrace) {
         this.stacktrace = stacktrace;
+    }
+
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
+    }
+
+    public Integer getMaxEnum() {
+        return maxEnum;
+    }
+
+    public void setMaxEnum(Integer maxEnum) {
+        this.maxEnum = maxEnum;
     }
 }

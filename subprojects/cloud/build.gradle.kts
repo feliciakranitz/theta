@@ -24,6 +24,8 @@ dependencies {
 	compile(group = "io.swagger.core.v3", name =  "swagger-annotations", version= "2.0.3")
 	compile (group= "io.springfox", name= "springfox-swagger2", version= "2.7.0")
 	compile (group= "io.springfox", name= "springfox-swagger-ui", version= "2.7.0")
+	compile (group= "com.rabbitmq", name= "amqp-client", version= "5.9.0")
+	compile (group= "io.dropwizard", name= "dropwizard-core", version= "2.0.10")
 //	developmentOnly "org.springframework.boot:spring-boot-devtools"
 	runtimeOnly("mysql:mysql-connector-java")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

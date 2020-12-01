@@ -2,15 +2,15 @@ version: "3.0"
 
 services:
 
-#  rabbit:
-#    image: rabbitmq:3.8.5-management
-#    ports:
-#      - "9000:15672"
-#      - "5672:5672"
-#    environment:
-#      RABBITMQ_DEFAULT_USER: "user"
-#      RABBITMQ_DEFAULT_PASS: "user"
-#    hostname: the-rabbit
+  rabbit:
+    image: rabbitmq:3.8.5-management
+    ports:
+      - "9000:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "user"
+      RABBITMQ_DEFAULT_PASS: "user"
+    hostname: the-rabbit
 
   mysql:
     build: etc/mysql

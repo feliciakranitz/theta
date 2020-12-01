@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS configuration (
   predSplit VARCHAR(60),
   errorLoc VARCHAR(60),
   precGranularity VARCHAR(60),
+  search VARCHAR(60)
   encoding VARCHAR(60),
   maxEnum SMALLINT,
   initPrec VARCHAR(60),
@@ -24,8 +25,6 @@ CREATE TABLE IF NOT EXISTS configuration (
   logLevel VARCHAR(60),
   benchmarkMode BOOLEAN,
   cexFile BOOLEAN,
-  visualize BOOLEAN,
-  metrics BOOLEAN,
   stacktrace BOOLEAN,
   creationTime TIMESTAMP);
 
@@ -35,6 +34,8 @@ CREATE TABLE IF NOT EXISTS job (
   CONSTRAINT fk_model FOREIGN KEY (modelId) REFERENCES model(modelId),
   configId CHAR(36),
   CONSTRAINT fk_config FOREIGN KEY (configId) REFERENCES configuration(configurationId),
+  status SMALLINT NOT NULL,
+  progress SMALLINT NOT NULL,
   outputFile VARCHAR(60),
   cexFile VARCHAR(60),
   notificationAddress VARCHAR(50),

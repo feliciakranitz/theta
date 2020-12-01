@@ -40,14 +40,10 @@ import java.util.*;
 @Service
 public class ModelService {
 
-    private final LocalBlobStore localBlobStore;
+    private final LocalBlobStore localBlobStore = new LocalBlobStore();
 
     @Autowired
     private ModelRepository modelRepository;
-
-    public ModelService() {
-        this.localBlobStore = new LocalBlobStore("/tmp/theta");
-    }
 
     public CreateModelResponse createModel(MultipartFile modelFile) {
         String[] splitFileName = StringUtils.split(modelFile.getOriginalFilename(), ".");
@@ -120,7 +116,7 @@ public class ModelService {
         }
     }
 
-    private CFA loadModel(UUID modelId) throws Exception {
+    public CFA loadModel(UUID modelId) throws Exception {
         FileSystemResource modelFile = getModelFile(modelId);
         try {
             return CfaDslManager.createCfa(modelFile.getInputStream());
@@ -160,7 +156,7 @@ public class ModelService {
     public void writeFile(final Graph graph, final String fileName, final GraphvizWriter.Format format)
             throws IOException, InterruptedException {
         String basePath = localBlobStore.getBasePath() + "/visualized/";
-        final String dotFile =  basePath + fileName + ".dot";
+        final String dotFile = basePath + fileName + ".dot";
         writeStringToFile(graph, dotFile);
         final String[] cmd = {"dot", format.getOption(), dotFile, "-o", basePath + fileName + "." + format.toString()};
         final Process proc = Runtime.getRuntime().exec(cmd);

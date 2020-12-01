@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.bme.mit.theta.cloud.cfa.endpoint.generated.contollers.ModelApi;
 import hu.bme.mit.theta.cloud.cfa.endpoint.generated.contollers.NotFoundException;
 import hu.bme.mit.theta.cloud.cfa.endpoint.generated.model.*;
+import hu.bme.mit.theta.cloud.cfa.service.JobService;
 import hu.bme.mit.theta.cloud.cfa.service.ModelService;
 import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +27,9 @@ public class ModelController implements ModelApi {
 
     @Autowired
     private ModelService modelService;
+
+    @Autowired
+    private JobService jobService;
 
     @Override
     public Optional<ObjectMapper> getObjectMapper() {
@@ -69,11 +76,6 @@ public class ModelController implements ModelApi {
     }
 
     @Override
-    public ResponseEntity<List<StartProcessResponse>> startAnalysis(UUID modelId, List<CfaConfig> body) {
-        return null;
-    }
-
-    @Override
     public ResponseEntity<CreateModelResponse> uploadModel(MultipartFile model) {
         CreateModelResponse createModelResponse = new CreateModelResponse();
         createModelResponse.setFileName("filename");
@@ -92,4 +94,17 @@ public class ModelController implements ModelApi {
         }
 
     }
+
+    @Override
+    public ResponseEntity<List<StartProcessResponse>> startAnalysis(UUID modelId, List<CfaConfig> body) {
+        try {
+            jobService.startAnalysis(modelId, body);
+            return ResponseEntity.accepted().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }
