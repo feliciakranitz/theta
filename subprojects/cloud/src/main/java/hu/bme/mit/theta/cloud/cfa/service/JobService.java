@@ -48,6 +48,9 @@ public class JobService {
 
     private WorkQueue workQueue = new RabbitWorkQueue("user", "user", "localhost", 5672);
 
+    public JobService() throws IOException {
+    }
+
     public void startAnalysis(UUID modelId, List<hu.bme.mit.theta.cloud.cfa.endpoint.generated.model.CfaConfig> configs) throws Exception {
 
         List<ConfigurationEntity> configurationEntities = configService.createConfiguration(configs);

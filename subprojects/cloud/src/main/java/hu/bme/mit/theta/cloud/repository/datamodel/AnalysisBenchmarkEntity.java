@@ -1,8 +1,10 @@
 package hu.bme.mit.theta.cloud.repository.datamodel;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -38,6 +40,10 @@ public class AnalysisBenchmarkEntity {
 
     @Column
     private double argMeanBranchingFactor;
+
+    @CreationTimestamp
+    @Column(updatable = false, nullable = false)
+    private OffsetDateTime creationDate;
 
 
     public UUID getBenchmarkId() {
@@ -110,5 +116,13 @@ public class AnalysisBenchmarkEntity {
 
     public void setArgMeanBranchingFactor(double argMeanBranchingFactor) {
         this.argMeanBranchingFactor = argMeanBranchingFactor;
+    }
+
+    public OffsetDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(OffsetDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }

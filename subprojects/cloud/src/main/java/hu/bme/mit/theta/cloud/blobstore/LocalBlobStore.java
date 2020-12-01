@@ -1,31 +1,40 @@
 package hu.bme.mit.theta.cloud.blobstore;
 
 import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
+import hu.bme.mit.theta.common.visualization.LineStyle;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class LocalBlobStore {
 
     private final String basePath = "/tmp/theta";
+    private final FileSystem fs = FileSystems.getDefault();
+    private final String[] folders = {"models", "visualized", "logs", "cexFiles"};
+
+    public LocalBlobStore(){
+        for (String folder: folders) {
+            Path outputDir = fs.getPath(basePath, folder);
+            try {
+                Files.createDirectories(outputDir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public String getBasePath() {
         return basePath;
     }
 
     public String saveModelBlob(InputStream inputStream, ModelEntity model) throws Exception {
-        FileSystem fs = FileSystems.getDefault();
 
-        Path outputDir = fs.getPath(basePath, "models");
-        Files.createDirectories(outputDir);
-
-        Path outputFilePath = fs.getPath(basePath, "models",model.getModelId() + "." + model.getModelType());
+        Path outputFilePath = fs.getPath(basePath, "models", model.getModelId() + "." + model.getModelType());
         Files.copy(inputStream, outputFilePath);
 
         return outputFilePath.toString();

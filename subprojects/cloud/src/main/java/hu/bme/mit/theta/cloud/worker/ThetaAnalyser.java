@@ -1,14 +1,23 @@
 package hu.bme.mit.theta.cloud.worker;
 
 import com.google.common.base.Stopwatch;
+import hu.bme.mit.theta.analysis.Analysis;
+import hu.bme.mit.theta.analysis.Trace;
 import hu.bme.mit.theta.analysis.algorithm.SafetyResult;
 import hu.bme.mit.theta.analysis.algorithm.cegar.CegarStatistics;
+import hu.bme.mit.theta.analysis.expl.ExplState;
 import hu.bme.mit.theta.cfa.CFA;
+import hu.bme.mit.theta.cfa.analysis.CfaAction;
+import hu.bme.mit.theta.cfa.analysis.CfaState;
+import hu.bme.mit.theta.cfa.analysis.CfaTraceConcretizer;
 import hu.bme.mit.theta.cfa.analysis.config.CfaConfig;
 import hu.bme.mit.theta.cfa.analysis.config.CfaConfigBuilder;
 import hu.bme.mit.theta.cloud.blobstore.LocalBlobStore;
 import hu.bme.mit.theta.cloud.cfa.service.ConfigService;
 import hu.bme.mit.theta.cloud.cfa.service.ModelService;
+import hu.bme.mit.theta.cloud.repository.AnalysisBenchmarkRepository;
+import hu.bme.mit.theta.cloud.repository.JobRepository;
+import hu.bme.mit.theta.cloud.repository.datamodel.AnalysisBenchmarkEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ConfigurationEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.JobEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
@@ -17,9 +26,16 @@ import hu.bme.mit.theta.common.logging.Logger;
 import hu.bme.mit.theta.common.logging.NullLogger;
 import hu.bme.mit.theta.solver.SolverFactory;
 import hu.bme.mit.theta.solver.z3.Z3SolverFactory;
+import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Path;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class ThetaAnalyser implements Analyser {
 
@@ -32,6 +48,12 @@ public class ThetaAnalyser implements Analyser {
 
     @Autowired
     private ModelService modelService;
+
+    @Autowired
+    private AnalysisBenchmarkRepository analysisBenchmarkRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
 
     @Override
     public void runAnalysis(JobEntity jobEntity, AnalysisProgressListener progressListener) {
@@ -61,9 +83,9 @@ public class ThetaAnalyser implements Analyser {
     private void runCfaAnalysis(JobEntity jobEntity, AnalysisProgressListener progressListener) {
         ModelEntity modelEntity = jobEntity.getModel();
         ConfigurationEntity configurationEntity = jobEntity.getConfig();
-
+        System.out.println("runanalysis");
         try {
-            Logger logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", false, false);
+            Logger logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, false);
 
             progressListener.onBegin();
             final Stopwatch sw = Stopwatch.createStarted();
@@ -72,10 +94,22 @@ public class ThetaAnalyser implements Analyser {
             final CfaConfig<?, ?, ?> configuration = buildConfiguration(cfa, configurationEntity, logger);
             final SafetyResult<?, ?> status = check(configuration);
             sw.stop();
-            progressListener.onComplete(true);
             final CegarStatistics stats = (CegarStatistics) status.getStats().get();
+
+            AnalysisBenchmarkEntity analysisBenchmarkEntity = mapToBenchmarkEntity(status, stats, sw.elapsed(TimeUnit.MILLISECONDS));
+            analysisBenchmarkEntity = analysisBenchmarkRepository.saveAndFlush(analysisBenchmarkEntity);
+
+            jobEntity.setSafe(status.isSafe());
+            jobEntity.setBenchmark(analysisBenchmarkEntity);
+
+            if (status.isUnsafe() && configurationEntity.getCexFile()) {
+                writeCex(status.asUnsafe(), jobEntity);
+            }
+
+            jobRepository.save(jobEntity);
+
+            progressListener.onComplete(true);
         } catch (Exception e) {
-            e.printStackTrace();
             progressListener.onComplete(false);
         }
     }
@@ -108,6 +142,37 @@ public class ThetaAnalyser implements Analyser {
             return configuration.check();
         } catch (final Exception ex) {
             throw new Exception("Error while running algorithm: " + ex.getMessage(), ex);
+        }
+    }
+
+    private AnalysisBenchmarkEntity mapToBenchmarkEntity(SafetyResult<?, ?> status, CegarStatistics stats, long timeElapsed) {
+        AnalysisBenchmarkEntity analysisBenchmarkEntity = new AnalysisBenchmarkEntity();
+
+        analysisBenchmarkEntity.setTimeElapsed(timeElapsed);
+        analysisBenchmarkEntity.setAlgorithmTimeMs( stats.getAlgorithmTimeMs());
+        analysisBenchmarkEntity.setAbstractorTimeMs(stats.getAbstractorTimeMs());
+        analysisBenchmarkEntity.setRefinerTimeMs(stats.getRefinerTimeMs());
+        analysisBenchmarkEntity.setIterations(stats.getIterations());
+        analysisBenchmarkEntity.setArgSize( status.getArg().size());
+        analysisBenchmarkEntity.setArgDepth(status.getArg().getDepth());
+        analysisBenchmarkEntity.setArgMeanBranchingFactor(status.getArg().getMeanBranchingFactor());
+
+        return analysisBenchmarkEntity;
+    }
+
+    private void writeCex(final SafetyResult.Unsafe<?, ?> status, JobEntity jobEntity) throws FileNotFoundException {
+        @SuppressWarnings("unchecked") final Trace<CfaState<?>, CfaAction> trace = (Trace<CfaState<?>, CfaAction>) status.getTrace();
+        final Trace<CfaState<ExplState>, CfaAction> concrTrace = CfaTraceConcretizer.concretize(trace, Z3SolverFactory.getInstance());
+        final File file = new File("/tmp/theta/cexFiles/" + jobEntity.getJobId() + ".txt");
+        PrintWriter printWriter = null;
+        try {
+            printWriter = new PrintWriter(file);
+            printWriter.write(concrTrace.toString());
+            jobEntity.setCexFile(true);
+        } finally {
+            if (printWriter != null) {
+                printWriter.close();
+            }
         }
     }
 }

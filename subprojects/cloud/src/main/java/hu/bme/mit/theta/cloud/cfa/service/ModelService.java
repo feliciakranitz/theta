@@ -45,6 +45,9 @@ public class ModelService {
     @Autowired
     private ModelRepository modelRepository;
 
+    public ModelService() throws IOException {
+    }
+
     public CreateModelResponse createModel(MultipartFile modelFile) {
         String[] splitFileName = StringUtils.split(modelFile.getOriginalFilename(), ".");
         if (splitFileName == null) {

@@ -33,7 +33,7 @@ public class JobEntity {
     @Column(nullable = false)
     private String status;
 
-    @Column
+    @Column(nullable = false)
     private boolean isSafe;
 
     @Column
@@ -45,7 +45,7 @@ public class JobEntity {
     private String outputFile;
 
     @Column
-    private String cexFile;
+    private boolean cexFile;
 
     @Column
     private String notificationAddress;
@@ -78,11 +78,11 @@ public class JobEntity {
         this.outputFile = outputFile;
     }
 
-    public String getCexFile() {
+    public boolean isCexFile() {
         return cexFile;
     }
 
-    public void setCexFile(String cexFile) {
+    public void setCexFile(boolean cexFile) {
         this.cexFile = cexFile;
     }
 
@@ -120,5 +120,21 @@ public class JobEntity {
 
     public UUID getJobId() {
         return jobId;
+    }
+
+    public AnalysisBenchmarkEntity getBenchmark() {
+        return benchmark;
+    }
+
+    public void setBenchmark(AnalysisBenchmarkEntity benchmark) {
+        this.benchmark = benchmark;
+    }
+
+    public boolean isSafe() {
+        return isSafe;
+    }
+
+    public void setSafe(boolean safe) {
+        isSafe = safe;
     }
 }
