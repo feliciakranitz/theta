@@ -1,7 +1,7 @@
 package hu.bme.mit.theta.cloud.workQueue;
 
 import com.rabbitmq.client.*;
-import hu.bme.mit.theta.cloud.cfa.endpoint.generated.contollers.NotFoundException;
+import hu.bme.mit.theta.cloud.rest.endpoint.generated.contollers.NotFoundException;
 import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

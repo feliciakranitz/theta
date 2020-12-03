@@ -14,7 +14,7 @@ import hu.bme.mit.theta.cfa.analysis.CfaTraceConcretizer;
 import hu.bme.mit.theta.cfa.analysis.config.CfaConfig;
 import hu.bme.mit.theta.cfa.analysis.config.CfaConfigBuilder;
 import hu.bme.mit.theta.cloud.blobstore.LocalBlobStore;
-import hu.bme.mit.theta.cloud.cfa.service.ModelService;
+import hu.bme.mit.theta.cloud.rest.service.ModelService;
 import hu.bme.mit.theta.cloud.repository.dao.*;
 import hu.bme.mit.theta.cloud.repository.datamodel.AnalysisBenchmarkEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ConfigurationEntity;

@@ -1,6 +1,6 @@
 package hu.bme.mit.theta.cloud.worker;
 
-import hu.bme.mit.theta.cloud.cfa.service.JobStatus;
+import hu.bme.mit.theta.cloud.rest.service.JobStatus;
 import hu.bme.mit.theta.cloud.mail.MailService;
 import hu.bme.mit.theta.cloud.repository.dao.*;
 import hu.bme.mit.theta.cloud.repository.datamodel.JobEntity;

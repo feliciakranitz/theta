@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS configuration (
   domainName VARCHAR(60),
   refinement VARCHAR(60),
   predSplit VARCHAR(60),
-  errorLoc VARCHAR(60) NOT NULL default "",
+  errorLoc VARCHAR(60),
   precGranularity VARCHAR(60),
   search VARCHAR(60)
   encoding VARCHAR(60),

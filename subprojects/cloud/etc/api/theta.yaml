@@ -432,8 +432,8 @@ components:
           type: number
     AnalysisLog:
       type: string
-      description: Log file of the model
-      format: byte
+      description: Log file of the analysis
+      format: binary
     CexFile:
       type: string
       description: Counterexample file of the model
