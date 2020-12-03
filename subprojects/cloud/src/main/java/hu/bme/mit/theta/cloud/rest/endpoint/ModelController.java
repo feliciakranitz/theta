@@ -58,6 +58,7 @@ public class ModelController implements ModelApi {
             getModelMetadataResponse.setModelId(modelId);
             getModelMetadataResponse.setFileName(modelEntity.getFileName());
             getModelMetadataResponse.setModelType(modelEntity.getModelType());
+            getModelMetadataResponse.setCreationDate(modelEntity.getCreationDate().toString());
 
             return ResponseEntity.ok(getModelMetadataResponse);
         } catch (NotFoundException e) {

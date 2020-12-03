@@ -2,9 +2,7 @@ package hu.bme.mit.theta.cloud.rest.endpoint.generated.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
 
 /**
  * AnalysisBenchmark
@@ -14,30 +12,30 @@ import java.math.BigDecimal;
 
 public class AnalysisBenchmark   {
   @JsonProperty("timeElapsed")
-  private BigDecimal timeElapsed = null;
+  private long timeElapsed;
 
   @JsonProperty("algorithmTimeMs")
-  private BigDecimal algorithmTimeMs = null;
+  private long algorithmTimeMs;
 
   @JsonProperty("abstractorTimeMs")
-  private BigDecimal abstractorTimeMs = null;
+  private long abstractorTimeMs;
 
   @JsonProperty("refinerTimeMs")
-  private BigDecimal refinerTimeMs = null;
+  private long refinerTimeMs;
 
   @JsonProperty("iterations")
-  private BigDecimal iterations = null;
+  private long iterations;
 
   @JsonProperty("argSize")
-  private BigDecimal argSize = null;
+  private long argSize;
 
   @JsonProperty("argDepth")
-  private BigDecimal argDepth = null;
+  private long argDepth;
 
   @JsonProperty("argMeanBranchingFactor")
-  private BigDecimal argMeanBranchingFactor = null;
+  private long argMeanBranchingFactor;
 
-  public AnalysisBenchmark timeElapsed(BigDecimal timeElapsed) {
+  public AnalysisBenchmark timeElapsed(long timeElapsed) {
     this.timeElapsed = timeElapsed;
     return this;
   }
@@ -47,15 +45,15 @@ public class AnalysisBenchmark   {
    * @return timeElapsed
    **/
   @Schema(description = "")
-    public BigDecimal getTimeElapsed() {
+    public long getTimeElapsed() {
     return timeElapsed;
   }
 
-  public void setTimeElapsed(BigDecimal timeElapsed) {
+  public void setTimeElapsed(long timeElapsed) {
     this.timeElapsed = timeElapsed;
   }
 
-  public AnalysisBenchmark algorithmTimeMs(BigDecimal algorithmTimeMs) {
+  public AnalysisBenchmark algorithmTimeMs(long algorithmTimeMs) {
     this.algorithmTimeMs = algorithmTimeMs;
     return this;
   }
@@ -65,15 +63,15 @@ public class AnalysisBenchmark   {
    * @return algorithmTimeMs
    **/
   @Schema(description = "")
-    public BigDecimal getAlgorithmTimeMs() {
+    public long getAlgorithmTimeMs() {
     return algorithmTimeMs;
   }
 
-  public void setAlgorithmTimeMs(BigDecimal algorithmTimeMs) {
+  public void setAlgorithmTimeMs(long algorithmTimeMs) {
     this.algorithmTimeMs = algorithmTimeMs;
   }
 
-  public AnalysisBenchmark abstractorTimeMs(BigDecimal abstractorTimeMs) {
+  public AnalysisBenchmark abstractorTimeMs(long abstractorTimeMs) {
     this.abstractorTimeMs = abstractorTimeMs;
     return this;
   }
@@ -83,15 +81,15 @@ public class AnalysisBenchmark   {
    * @return abstractorTimeMs
    **/
   @Schema(description = "")
-    public BigDecimal getAbstractorTimeMs() {
+    public long getAbstractorTimeMs() {
     return abstractorTimeMs;
   }
 
-  public void setAbstractorTimeMs(BigDecimal abstractorTimeMs) {
+  public void setAbstractorTimeMs(long abstractorTimeMs) {
     this.abstractorTimeMs = abstractorTimeMs;
   }
 
-  public AnalysisBenchmark refinerTimeMs(BigDecimal refinerTimeMs) {
+  public AnalysisBenchmark refinerTimeMs(long refinerTimeMs) {
     this.refinerTimeMs = refinerTimeMs;
     return this;
   }
@@ -101,15 +99,15 @@ public class AnalysisBenchmark   {
    * @return refinerTimeMs
    **/
   @Schema(description = "")
-    public BigDecimal getRefinerTimeMs() {
+    public long getRefinerTimeMs() {
     return refinerTimeMs;
   }
 
-  public void setRefinerTimeMs(BigDecimal refinerTimeMs) {
+  public void setRefinerTimeMs(long refinerTimeMs) {
     this.refinerTimeMs = refinerTimeMs;
   }
 
-  public AnalysisBenchmark iterations(BigDecimal iterations) {
+  public AnalysisBenchmark iterations(long iterations) {
     this.iterations = iterations;
     return this;
   }
@@ -119,15 +117,15 @@ public class AnalysisBenchmark   {
    * @return iterations
    **/
   @Schema(description = "")
-    public BigDecimal getIterations() {
+    public long getIterations() {
     return iterations;
   }
 
-  public void setIterations(BigDecimal iterations) {
+  public void setIterations(long iterations) {
     this.iterations = iterations;
   }
 
-  public AnalysisBenchmark argSize(BigDecimal argSize) {
+  public AnalysisBenchmark argSize(long argSize) {
     this.argSize = argSize;
     return this;
   }
@@ -137,15 +135,15 @@ public class AnalysisBenchmark   {
    * @return argSize
    **/
   @Schema(description = "")
-    public BigDecimal getArgSize() {
+    public long getArgSize() {
     return argSize;
   }
 
-  public void setArgSize(BigDecimal argSize) {
+  public void setArgSize(long argSize) {
     this.argSize = argSize;
   }
 
-  public AnalysisBenchmark argDepth(BigDecimal argDepth) {
+  public AnalysisBenchmark argDepth(long argDepth) {
     this.argDepth = argDepth;
     return this;
   }
@@ -155,15 +153,15 @@ public class AnalysisBenchmark   {
    * @return argDepth
    **/
   @Schema(description = "")
-    public BigDecimal getArgDepth() {
+    public long getArgDepth() {
     return argDepth;
   }
 
-  public void setArgDepth(BigDecimal argDepth) {
+  public void setArgDepth(long argDepth) {
     this.argDepth = argDepth;
   }
 
-  public AnalysisBenchmark argMeanBranchingFactor(BigDecimal argMeanBranchingFactor) {
+  public AnalysisBenchmark argMeanBranchingFactor(long argMeanBranchingFactor) {
     this.argMeanBranchingFactor = argMeanBranchingFactor;
     return this;
   }
@@ -173,11 +171,11 @@ public class AnalysisBenchmark   {
    * @return argMeanBranchingFactor
    **/
   @Schema(description = "")
-    public BigDecimal getArgMeanBranchingFactor() {
+    public long getArgMeanBranchingFactor() {
     return argMeanBranchingFactor;
   }
 
-  public void setArgMeanBranchingFactor(BigDecimal argMeanBranchingFactor) {
+  public void setArgMeanBranchingFactor(long argMeanBranchingFactor) {
     this.argMeanBranchingFactor = argMeanBranchingFactor;
   }
 

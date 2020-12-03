@@ -294,6 +294,18 @@ public class AnalysisConfig   {
   @JsonProperty("maxEnum")
   private Integer maxEnum = 0;
 
+  @JsonProperty("notificationAddress")
+  private String notificationAddress;
+
+  @Schema(description = "Email address of the analysis creator")
+  public String getNotificationAddress() {
+    return notificationAddress;
+  }
+
+  public void setNotificationAddress(String notificationAddress) {
+    this.notificationAddress = notificationAddress;
+  }
+
   @JsonProperty("cexFile")
   private Boolean cexFile = false;
 

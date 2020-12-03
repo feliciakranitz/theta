@@ -66,4 +66,8 @@ public class ModelEntity {
     public void setFileSize(Long fileSize) {
         this.fileSize = fileSize;
     }
+
+    public OffsetDateTime getCreationDate() {
+        return creationDate;
+    }
 }

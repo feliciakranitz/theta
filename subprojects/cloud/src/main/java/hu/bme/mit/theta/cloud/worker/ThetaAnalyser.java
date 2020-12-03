@@ -251,7 +251,9 @@ public class ThetaAnalyser implements Analyser {
             printWriter = new PrintWriter(file);
             for (Valuation state : concrTrace.getStates()) {
                 printWriter.println(state.toString());
+                jobEntity.setCexFile(true);
             }
+            jobEntity.setCexFile(true);
         } finally {
             if (printWriter != null) {
                 printWriter.close();

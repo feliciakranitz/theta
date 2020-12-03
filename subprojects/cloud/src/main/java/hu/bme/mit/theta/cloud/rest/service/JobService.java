@@ -43,10 +43,12 @@ public class JobService {
         List<ConfigurationEntity> configurationEntities = configService.createConfiguration(configs);
         ModelEntity modelEntity = modelService.getModelMetadata(modelId);
 
+        int index = 0;
         for (ConfigurationEntity configurationEntity : configurationEntities) {
             JobEntity jobEntity = new JobEntity();
 
             jobEntity.setModel(modelEntity);
+            jobEntity.setNotificationAddress(configs.get(index++).getNotificationAddress());
             jobEntity.setConfig(configurationEntity);
             jobEntity.setStatus(JobStatus.WAITING.toString());
             jobEntity.setProgress(0);
