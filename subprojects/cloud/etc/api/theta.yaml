@@ -5,16 +5,16 @@ info:
   description: This is the api of the Theta model checking framework. You can find out about it more on http://github.com/ftsrg/theta.
   version: 2.0.0
 servers:
-- url: http://localhost:8080/
-  description: Server of the Theta application running in docker
+  - url: http://localhost:8080/
+    description: Server of the Theta application running in docker
 tags:
-- name: cfa
-  description: Reachability checking of error locations in Control Flow Automata (CFA) using CEGAR-based algorithms
+  - name: cfa
+    description: Reachability checking of error locations in Control Flow Automata (CFA) using CEGAR-based algorithms
 paths:
   /model:
     post:
       tags:
-      - model
+        - model
       summary: Upload model file
       operationId: uploadModel
       requestBody:
@@ -22,7 +22,7 @@ paths:
           multipart/form-data:
             schema:
               required:
-              - model
+                - model
               type: object
               properties:
                 model:
@@ -41,52 +41,53 @@ paths:
   /model/{modelId}:
     get:
       tags:
-      - model
+        - model
       description: Fetches the model file
       operationId: getModelFile
       parameters:
-      - name: modelId
-        in: path
-        description: The model id
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-          format: uuid
+        - name: modelId
+          in: path
+          description: The model id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Successfully fetched the model
           content:
-            application/json:
+            application/pdf:
               schema:
-                $ref: '#/components/schemas/GetModelFileResponse'
+                type: string
+                format: binary
         "404":
           description: Model with the given id not found
         "500":
           description: The error response if something goes wrong.
     post:
       tags:
-      - job
+        - job
       description: Starts analysis process on the model with the given parameters
       operationId: startAnalysis
       parameters:
-      - name: modelId
-        in: path
-        description: The model id
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-          format: uuid
+        - name: modelId
+          in: path
+          description: The model id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: uuid
       requestBody:
         content:
           application/json:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CfaConfig'
+                $ref: '#/components/schemas/AnalysisConfig'
       responses:
         "200":
           description: Analysis started successfully
@@ -147,7 +148,7 @@ paths:
         "200":
           description: Model successfully vizualized
           content:
-            application/json:
+            image/png:
               schema:
                 $ref: '#/components/schemas/GetVisualizedModelResponse'
         "404":
@@ -159,7 +160,7 @@ paths:
       tags:
         - model
       description: Get metrics of the model without running the algorithm
-      operationId: visualizeModel
+      operationId: getModelMetrics
       parameters:
         - name: modelId
           in: path
@@ -181,7 +182,7 @@ paths:
           description: Model with the given id not found
         "500":
           description: The error response if something goes wrong.
-  /models
+  /models:
     get:
       tags:
         - model
@@ -189,6 +190,7 @@ paths:
       operationId: getAllModelMetadata
       responses:
         200:
+          description: OK
           content:
             application/json:
               schema:
@@ -210,28 +212,26 @@ paths:
   /jobs/{jobId}:
     get:
       tags:
-      - job
+        - job
       description: Get the result of the analysis with the given Id
       operationId: getAnalysisResult
       parameters:
-      - name: jobId
-        in: path
-        description: The analysis job id
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-          format: uuid
+        - name: jobId
+          in: path
+          description: The analysis job id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Analysis finished
           content:
             application/json:
               schema:
-                oneOf:
-                - $ref: '#/components/schemas/AnalysisBenchmarkResponse'
-                - $ref: '#/components/schemas/AnalysisLog'
+                $ref: '#/components/schemas/JobResponse'
         "102":
           description: Analysis process not finished yet
         "404":
@@ -244,33 +244,59 @@ paths:
         - job
       description: Get the counterexample of the analysis with the given Id
       operationId: getCexFile
+      parameters:
+        - name: jobId
+          in: path
+          description: The analysis job id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Cex file of the analysis
           content:
-            $ref: '#/components/schemas/CexFileResponse'
+            application/pdf:
+              schema:
+                $ref: '#/components/schemas/CexFile'
+        "404":
+          description: Job with the given id not found
+        "500":
+          description: The error response if something goes wrong.
+  /jobs/{jobId}/log:
+    get:
+      tags:
+        - job
+      description: Get the log file of the analysis with the given Id
+      operationId: getLogFile
+      parameters:
+        - name: jobId
+          in: path
+          description: The analysis job id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Log file of the analysis
+          content:
+            application/pdf:
+              schema:
+                $ref: '#/components/schemas/AnalysisLog'
         "404":
           description: Job with the given id not found
         "500":
           description: The error response if something goes wrong.
 components:
   schemas:
-    GetModelFileResponse:
-      required:
-      - content
-      - fileName
-      type: object
-      properties:
-        fileName:
-          type: string
-          description: fileName of the newly uploaded CFA model
-        content:
-          type: string
-          description: The content of the file
-          format: binary
     CreateModelResponse:
       required:
-      - modelId
+        - modelId
       type: object
       properties:
         modelId:
@@ -285,14 +311,14 @@ components:
           description: type of the model
     StartProcessResponse:
       required:
-      - processId
+        - processId
       type: object
       properties:
         processId:
           type: string
           description: the generated id of process
           format: uuid
-    CfaConfig:
+    AnalysisConfig:
       type: object
       properties:
         domain:
@@ -300,50 +326,50 @@ components:
           description: Abstract domain
           default: PRED_CART
           enum:
-          - EXPL
-          - PRED_BOOL
-          - PRED_CART
-          - PRED_SPLIT
+            - EXPL
+            - PRED_BOOL
+            - PRED_CART
+            - PRED_SPLIT
         refinement:
           type: string
           description: Refinement strategy
           default: SEQ_ITP
           enum:
-          - FW_BIN_ITP
-          - BW_BIN_ITP
-          - SEQ_ITP
-          - MULTI_SEQ
-          - UNSAT_CORE
+            - FW_BIN_ITP
+            - BW_BIN_ITP
+            - SEQ_ITP
+            - MULTI_SEQ
+            - UNSAT_CORE
         search:
           type: string
           description: Search strategy
           default: BFS
           enum:
-          - BFS
-          - DFS
-          - ERR
+            - BFS
+            - DFS
+            - ERR
         predSplit:
           type: string
           description: Predicate splitting (for predicate abstraction)
           default: WHOLE
           enum:
-          - WHOLE
-          - CONJUNCTS
-          - ATOMS
+            - WHOLE
+            - CONJUNCTS
+            - ATOMS
         precGranularity:
           type: string
           description: Precision granularity
           default: GLOBAL
           enum:
-          - GLOBAL
-          - LOCAL
+            - GLOBAL
+            - LOCAL
         encoding:
           type: string
           description: Block encoding
           default: LBE
           enum:
-          - SBE
-          - LBE
+            - SBE
+            - LBE
         pruneStrategy:
           type: string
           description: Strategy for pruning the ARG after refinement
@@ -356,8 +382,8 @@ components:
           description: Initial precision of abstraction
           default: EMPTY
           enum:
-          - EMPTY
-          - ALLVARS
+            - EMPTY
+            - ALLVARS
         maxEnum:
           type: number
           description: Maximal number of explicitly enumerated successors ( zero is  unlimited)
@@ -370,9 +396,6 @@ components:
           type: boolean
           description: Benchmark mode (only print metrics)
           default: false
-        visualize:
-          type: string
-          description: Visualize CFA to a file without running the algorithm
         stacktrace:
           type: boolean
           description: Print full stack trace in case of exception
@@ -382,17 +405,15 @@ components:
           description: Detailedness of logging
           default: SUBSTEP
           enum:
-          - RESULT
-          - MAINSTEP
-          - SUBSTEP
-          - INFO
-          - DETAIL
-          - VERBOSE
+            - RESULT
+            - MAINSTEP
+            - SUBSTEP
+            - INFO
+            - DETAIL
+            - VERBOSE
     AnalysisBenchmark:
       type: object
       properties:
-        safe:
-          type: boolean
         timeElapsed:
           type: number
         algorithmTimeMs:
@@ -409,50 +430,18 @@ components:
           type: number
         argMeanBranchingFactor:
           type: number
-    AnalysisBenchmarkResponse:
-      type: object
-      properties:
-        analysisBenchmark:
-          $ref: '#/components/schemas/AnalysisBenchmark'
-        cex:
-          type: string
-          description: Counterexample file
-          format: byte
-        visualized:
-          type: string
-          description: Visualized model file
-          format: byte
     AnalysisLog:
-      type: object
-      properties:
-        safe:
-          type: string
-        log:
-          type: string
-          description: Log file
-          format: byte
-        cex:
-          type: string
-          description: Counterexample file
-          format: byte
-        visualized:
-          type: string
-          description: Visualized model file
-          format: byte
-    CexFileResponse:
-      type: object
-      properties:
-        cex:
-          type: string
-          description: Counterexample file
-          format: byte
+      type: string
+      description: Log file of the model
+      format: byte
+    CexFile:
+      type: string
+      description: Counterexample file of the model
+      format: byte
     GetVisualizedModelResponse:
-      type: object
-      properties:
-        visualizedModel:
-          type: string
-          description: Visualized model file
-          format: byte
+      type: string
+      description: Visualized model file
+      format: binary
     GetModelMetricsResponse:
       type: object
       properties:
@@ -484,16 +473,43 @@ components:
         jobId:
           type: string
           format: uuid
-        modelId:
+        fileName:
           type: string
           format: uuid
-        configId:
+        isSafe:
+          type: boolean
+        status:
           type: string
-          format: uuid
+        hasCex:
+          type: boolean
+        analysisBenchmark:
+          $ref: '#/components/schemas/AnalysisBenchmark'
     AllJobsResponse:
       type: array
       items:
         $ref: '#/components/schemas/JobResponse'
+    AllModelMetadataResponse:
+      properties:
+        modelList:
+          type: array
+          items:
+            $ref: '#/components/schemas/GetModelMetadataResponse'
+    GetModelMetadataResponse:
+      type: object
+      properties:
+        modelId:
+          type: string
+          description: the generated id of the model file
+          format: uuid
+        fileName:
+          type: string
+          description: fileName of the newly uploaded model
+        modelType:
+          type: string
+          description: type of the model
+        creationDate:
+          type: string
+          description: creation time of the model file
   responses:
     ProcessNotFinished:
       description: Analysis process not finished yet
