@@ -13,53 +13,52 @@ public class ConfigurationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "uuid-char")
-    @Column(name = "configurationId")
+    @Column(name = "configuration_id")
     private UUID configurationId;
 
-    @Column
+    @Column(name = "domain_name")
     private String domainName;
 
     @Column
     private String refinement;
 
-    @Column
+    @Column(name = "pred_split")
     private String predSplit;
 
-    @Column
+    @Column(name = "error_loc")
     private String errorLoc;
 
-    @Column
+    @Column(name = "prec_granularity")
     private String precGranularity;
 
-    @Column
     private String search;
 
     @Column
     private String encoding;
 
-    @Column
+    @Column(name = "max_enum")
     private Integer maxEnum;
 
-    @Column
+    @Column(name = "init_prec")
     private String initPrec;
 
-    @Column
+    @Column(name = "prune_strategy")
     private String pruneStrategy;
 
-    @Column
+    @Column(name = "log_level")
     private String logLevel;
 
-    @Column
+    @Column(name = "benchmark_mode")
     private Boolean benchmarkMode;
 
-    @Column
+    @Column(name = "cex_file")
     private Boolean cexFile;
 
     @Column
     private Boolean stacktrace;
 
     @CreationTimestamp
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false, name = "creation_date")
     private OffsetDateTime creationDate;
 
     public String getDomainName() {

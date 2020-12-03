@@ -2,6 +2,7 @@ package hu.bme.mit.theta.cloud.repository.datamodel;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -11,29 +12,33 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "job")
+@NamedQueries({
+        @NamedQuery(name = "hu.bme.mit.theta.cloud.repository.datamodel.JobEntity.findAll",
+                query = "select c from JobEntity c")
+})
 public class JobEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "uuid-char")
-    @Column(name = "jobId")
+    @Column(name = "job_id")
     private UUID jobId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinColumn(name = "modelId", updatable = false, nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinColumn(name = "model_id", updatable = false, nullable = false)
     private ModelEntity model;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinColumn(name = "configurationId", updatable = false, nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinColumn(name = "configuration_id", updatable = false, nullable = false)
     private ConfigurationEntity config;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinColumn(name = "benchmarkId")
+    @OneToOne(targetEntity = AnalysisBenchmarkEntity.class, fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
+    @JoinColumn(name = "benchmark_id")
     private AnalysisBenchmarkEntity benchmark;
 
     @Column(nullable = false)
     private String status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "is_safe")
     private boolean isSafe;
 
     @Column
@@ -41,17 +46,17 @@ public class JobEntity {
     @Max( value = 100)
     private int progress;
 
-    @Column
+    @Column(name = "output_file")
     private String outputFile;
 
-    @Column
+    @Column(name = "cex_file")
     private boolean cexFile;
 
-    @Column
+    @Column(name = "notification_address")
     private String notificationAddress;
 
     @CreationTimestamp
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false, name = "creation_date")
     private OffsetDateTime creationDate;
 
     public ModelEntity getModel() {

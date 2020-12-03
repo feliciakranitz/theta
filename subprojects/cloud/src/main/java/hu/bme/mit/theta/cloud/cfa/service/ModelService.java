@@ -89,7 +89,8 @@ public class ModelService {
     public GetModelMetricsResponse getModelMetrics(UUID modelId) {
         GetModelMetricsResponse getModelMetricsResponse = new GetModelMetricsResponse();
         try {
-            CFA cfa = loadModel(modelId);
+            ModelEntity modelEntity = getModelMetadata(modelId);
+            CFA cfa = loadModel(modelEntity);
             getModelMetricsResponse.setVars(cfa.getVars().size());
             getModelMetricsResponse.setBoolVars(cfa.getVars().stream().filter(v -> v.getType() instanceof BoolType).count());
             getModelMetricsResponse.setIntVars(cfa.getVars().stream().filter(v -> v.getType() instanceof IntType).count());
@@ -110,7 +111,8 @@ public class ModelService {
 
     public FileSystemResource visualizeModel(UUID modelId) throws Exception {
         try {
-            CFA cfa = loadModel(modelId);
+            ModelEntity modelEntity = getModelMetadata(modelId);
+            CFA cfa = loadModel(modelEntity);
             final Graph graph = CfaVisualizer.visualize(cfa);
             writeFile(graph, modelId.toString(), GraphvizWriter.Format.PNG);
             return localBlobStore.getVisualizedBlob(modelId, "png");
@@ -119,8 +121,8 @@ public class ModelService {
         }
     }
 
-    public CFA loadModel(UUID modelId) throws Exception {
-        FileSystemResource modelFile = getModelFile(modelId);
+    public CFA loadModel(ModelEntity modelEntity) throws Exception {
+        FileSystemResource modelFile = localBlobStore.getModelBlob(modelEntity);
         try {
             return CfaDslManager.createCfa(modelFile.getInputStream());
         } catch (final Exception ex) {

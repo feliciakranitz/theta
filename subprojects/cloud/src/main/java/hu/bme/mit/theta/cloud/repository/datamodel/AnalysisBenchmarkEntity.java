@@ -7,42 +7,47 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Embeddable
 @Entity
-@Table(name = "analysisBenchmark")
+@Table(name = "analysis_benchmark")
+@NamedQueries({
+        @NamedQuery(name = "hu.bme.mit.theta.cloud.repository.datamodel.AnalysisBenchmarkEntity.findAll",
+                query = "select c from AnalysisBenchmarkEntity c")
+})
 public class AnalysisBenchmarkEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "uuid-char")
-    @Column(name = "jobId")
+    @Column(name = "benchmark_id")
     private UUID benchmarkId;
 
-    @Column
+    @Column(name = "time_elapsed")
     private long timeElapsed;
 
-    @Column
+    @Column(name = "algorithm_time_ms")
     private long algorithmTimeMs;
 
-    @Column
+    @Column(name = "abstractor_time_ms")
     private long abstractorTimeMs;
 
-    @Column
+    @Column(name = "refiner_time_ms")
     private long refinerTimeMs;
 
     @Column
     private int iterations;
 
-    @Column
+    @Column(name = "arg_size")
     private long argSize;
 
-    @Column
+    @Column(name = "arg_depth")
     private int argDepth;
 
-    @Column
+    @Column(name = "arg_mean_branching_factor")
     private double argMeanBranchingFactor;
 
     @CreationTimestamp
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false, name = "creation_date")
     private OffsetDateTime creationDate;
 
 

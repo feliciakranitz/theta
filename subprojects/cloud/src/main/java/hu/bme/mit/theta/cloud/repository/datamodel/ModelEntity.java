@@ -2,6 +2,7 @@ package hu.bme.mit.theta.cloud.repository.datamodel;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
@@ -9,25 +10,29 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "model")
+@NamedQueries({
+        @NamedQuery(name = "hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity.findAll",
+                query = "select c from ModelEntity c")
+})
 public class ModelEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "uuid-char")
-    @Column(name = "modelId")
+    @Column(name = "model_id")
     private UUID modelId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "model_type")
     private String modelType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "file_name")
     private String fileName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "file_size")
     private Long fileSize;
 
     @CreationTimestamp
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false, name = "creation_date")
     private OffsetDateTime creationDate;
 
     public UUID getModelId() {

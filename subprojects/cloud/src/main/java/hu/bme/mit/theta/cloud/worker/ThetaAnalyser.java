@@ -17,6 +17,7 @@ import hu.bme.mit.theta.cloud.cfa.service.ConfigService;
 import hu.bme.mit.theta.cloud.cfa.service.ModelService;
 import hu.bme.mit.theta.cloud.repository.AnalysisBenchmarkRepository;
 import hu.bme.mit.theta.cloud.repository.JobRepository;
+import hu.bme.mit.theta.cloud.repository.dao.*;
 import hu.bme.mit.theta.cloud.repository.datamodel.AnalysisBenchmarkEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ConfigurationEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.JobEntity;
@@ -29,39 +30,43 @@ import hu.bme.mit.theta.solver.z3.Z3SolverFactory;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class ThetaAnalyser implements Analyser {
+
+    private Logger logger;
 
     private final LocalBlobStore localBlobStore = new LocalBlobStore();
 
     private final SolverFactory solverFactory = Z3SolverFactory.getInstance();
 
-    @Autowired
-    private ConfigService configService;
+    private ModelService modelService = new ModelService();
 
-    @Autowired
-    private ModelService modelService;
+    private JobDAORepository jobRepository;
+    private ModelDAORepository modelRepository;
+    private  AnalysisBenchmarkDAORepository analysisBenchmarkRepository;
 
-    @Autowired
-    private AnalysisBenchmarkRepository analysisBenchmarkRepository;
-
-    @Autowired
-    private JobRepository jobRepository;
+    public ThetaAnalyser(JobDAORepository jobDAORepository, ModelDAORepository modelDAORepository, AnalysisBenchmarkDAORepository analysisBenchmarkDAORepository) throws IOException {
+        this.jobRepository = jobDAORepository;
+        this.modelRepository = modelDAORepository;
+        this.analysisBenchmarkRepository = analysisBenchmarkDAORepository;
+    }
 
     @Override
     public void runAnalysis(JobEntity jobEntity, AnalysisProgressListener progressListener) {
 
         switch (jobEntity.getModel().getModelType()) {
             case "CFA":
-                System.out.println("CFA model");
-                runCfaAnalysis(jobEntity, progressListener);
+                try {
+                    runCfaAnalysis(jobEntity, progressListener);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
                 break;
             case "SYSTEM":
                 System.out.println("system model");
@@ -80,24 +85,39 @@ public class ThetaAnalyser implements Analyser {
         }
     }
 
-    private void runCfaAnalysis(JobEntity jobEntity, AnalysisProgressListener progressListener) {
+    private void runCfaAnalysis(JobEntity jobEntity, AnalysisProgressListener progressListener) throws FileNotFoundException {
         ModelEntity modelEntity = jobEntity.getModel();
         ConfigurationEntity configurationEntity = jobEntity.getConfig();
-        System.out.println("runanalysis");
+        logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, true);
         try {
-            Logger logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, false);
-
             progressListener.onBegin();
             final Stopwatch sw = Stopwatch.createStarted();
-            CFA cfa = modelService.loadModel(modelEntity.getModelId());
+            CFA cfa = modelService.loadModel(modelEntity);
 
-            final CfaConfig<?, ?, ?> configuration = buildConfiguration(cfa, configurationEntity, logger);
+            CFA.Loc errLoc = null;
+            if (cfa.getErrorLoc().isPresent()) {
+                errLoc = cfa.getErrorLoc().get();
+            }
+
+            if (configurationEntity.getErrorLoc() != null) {
+                errLoc = null;
+                for (CFA.Loc running : cfa.getLocs()) {
+                    if (running.getName().equals(configurationEntity.getErrorLoc())) {
+                        errLoc = running;
+                    }
+                }
+                checkNotNull(errLoc, "Location '" + configurationEntity.getErrorLoc() + "' not found in CFA");
+            }
+
+            checkNotNull(errLoc, "Error location must be specified in CFA or as argument");
+
+            final CfaConfig<?, ?, ?> configuration = buildConfiguration(cfa, errLoc, configurationEntity);
             final SafetyResult<?, ?> status = check(configuration);
             sw.stop();
             final CegarStatistics stats = (CegarStatistics) status.getStats().get();
 
             AnalysisBenchmarkEntity analysisBenchmarkEntity = mapToBenchmarkEntity(status, stats, sw.elapsed(TimeUnit.MILLISECONDS));
-            analysisBenchmarkEntity = analysisBenchmarkRepository.saveAndFlush(analysisBenchmarkEntity);
+            analysisBenchmarkEntity = analysisBenchmarkRepository.save(analysisBenchmarkEntity);
 
             jobEntity.setSafe(status.isSafe());
             jobEntity.setBenchmark(analysisBenchmarkEntity);
@@ -110,6 +130,7 @@ public class ThetaAnalyser implements Analyser {
 
             progressListener.onComplete(true);
         } catch (Exception e) {
+            logError(configurationEntity, e);
             progressListener.onComplete(false);
         }
     }
@@ -123,7 +144,7 @@ public class ThetaAnalyser implements Analyser {
     private void runXstsAnalysis() {
     }
 
-    private CfaConfig<?, ?, ?> buildConfiguration(final CFA cfa, ConfigurationEntity configuration, Logger logger) {
+    private CfaConfig<?, ?, ?> buildConfiguration(final CFA cfa, CFA.Loc errorLoc, ConfigurationEntity configuration) {
         return new CfaConfigBuilder(
                 CfaConfigBuilder.Domain.valueOf(configuration.getDomainName()),
                 CfaConfigBuilder.Refinement.valueOf(configuration.getRefinement()), this.solverFactory)
@@ -134,7 +155,7 @@ public class ThetaAnalyser implements Analyser {
                 .maxEnum(configuration.getMaxEnum())
                 .initPrec(CfaConfigBuilder.InitPrec.valueOf(configuration.getInitPrec()))
                 .logger(logger)
-                .build(cfa, null);
+                .build(cfa, errorLoc);
     }
 
     private SafetyResult<?, ?> check(CfaConfig<?, ?, ?> configuration) throws Exception {
@@ -173,6 +194,18 @@ public class ThetaAnalyser implements Analyser {
             if (printWriter != null) {
                 printWriter.close();
             }
+        }
+    }
+
+    private void logError(ConfigurationEntity configurationEntity, final Throwable ex) {
+        final String message = ex.getMessage() == null ? "" : ex.getMessage();
+        logger.write(Logger.Level.RESULT, "%s occurred, message: %s%n", ex.getClass().getSimpleName(), message);
+        if (configurationEntity.getStacktrace()) {
+            final StringWriter errors = new StringWriter();
+            ex.printStackTrace(new PrintWriter(errors));
+            logger.write(Logger.Level.RESULT, "Trace:%n%s%n", errors.toString());
+        } else {
+            logger.write(Logger.Level.RESULT, "Use --stacktrace for stack trace%n");
         }
     }
 }

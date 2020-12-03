@@ -3,7 +3,7 @@ CREATE DATABASE IF NOT EXISTS theta_db;
 USE theta_db;
 
 CREATE TABLE IF NOT EXISTS model (
-  modelId CHAR(36) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  modelId CHAR(36) PRIMARY KEY,
   modelType VARCHAR(10),
   fileName VARCHAR(100),
   fileSize BIGINT,
@@ -11,11 +11,11 @@ CREATE TABLE IF NOT EXISTS model (
   creationTime TIMESTAMP);
 
 CREATE TABLE IF NOT EXISTS configuration (
-  configurationId CHAR(36) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  configurationId CHAR(36) PRIMARY KEY,
   domainName VARCHAR(60),
   refinement VARCHAR(60),
   predSplit VARCHAR(60),
-  errorLoc VARCHAR(60),
+  errorLoc VARCHAR(60) NOT NULL default "",
   precGranularity VARCHAR(60),
   search VARCHAR(60)
   encoding VARCHAR(60),
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS configuration (
   creationTime TIMESTAMP);
 
 CREATE TABLE IF NOT EXISTS job (
-  jobId CHAR(36) NOT NULL PRIMARY KEY,
+  jobId CHAR(36) PRIMARY KEY,
   modelId CHAR(36),
   CONSTRAINT fk_model FOREIGN KEY (modelId) REFERENCES model(modelId),
   configId CHAR(36),
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS job (
   creationTime TIMESTAMP);
 
 CREATE TABLE IF NOT EXISTS analysisBenchmark (
-  benchmarkId CHAR(36) NOT NULL PRIMARY KEY,
+  benchmarkId CHAR(36) PRIMARY KEY,
   timeElapsed BIGINT NOT NULL,
   algorithmTimeMs BIGINT NOT NULL,
   abstractorTimeMs BIGINT NOT NULL,

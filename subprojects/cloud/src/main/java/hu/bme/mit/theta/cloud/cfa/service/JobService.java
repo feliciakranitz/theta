@@ -1,11 +1,5 @@
 package hu.bme.mit.theta.cloud.cfa.service;
 
-import com.google.common.base.Stopwatch;
-import hu.bme.mit.theta.analysis.algorithm.SafetyResult;
-import hu.bme.mit.theta.analysis.algorithm.cegar.CegarStatistics;
-import hu.bme.mit.theta.cfa.CFA;
-import hu.bme.mit.theta.cfa.analysis.config.CfaConfig;
-import hu.bme.mit.theta.cfa.analysis.config.CfaConfigBuilder;
 import hu.bme.mit.theta.cloud.blobstore.LocalBlobStore;
 import hu.bme.mit.theta.cloud.cfa.endpoint.generated.contollers.NotFoundException;
 import hu.bme.mit.theta.cloud.repository.JobRepository;
@@ -15,20 +9,13 @@ import hu.bme.mit.theta.cloud.repository.datamodel.JobEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
 import hu.bme.mit.theta.cloud.workQueue.RabbitWorkQueue;
 import hu.bme.mit.theta.cloud.workQueue.WorkQueue;
-import hu.bme.mit.theta.common.logging.FileLogger;
-import hu.bme.mit.theta.common.logging.NullLogger;
 import hu.bme.mit.theta.solver.SolverFactory;
 import hu.bme.mit.theta.solver.z3.Z3SolverFactory;
-import io.swagger.models.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class JobService {
@@ -78,7 +65,6 @@ public class JobService {
     private NotFoundException jobNotFoundException() {
         return new NotFoundException(0, "Model not found by id");
     }
-
 
 
 }
