@@ -8,10 +8,8 @@ import hu.bme.mit.theta.cloud.cfa.endpoint.generated.contollers.NotFoundExceptio
 import hu.bme.mit.theta.cloud.cfa.endpoint.generated.model.CreateModelResponse;
 import hu.bme.mit.theta.cloud.cfa.endpoint.generated.model.GetModelMetricsResponse;
 import hu.bme.mit.theta.cloud.repository.ModelRepository;
-import hu.bme.mit.theta.cloud.repository.datamodel.ConfigurationEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
-import hu.bme.mit.theta.common.logging.FileLogger;
-import hu.bme.mit.theta.common.logging.Logger;
+import hu.bme.mit.theta.common.Utils;
 import hu.bme.mit.theta.common.visualization.Graph;
 import hu.bme.mit.theta.common.visualization.writer.GraphvizWriter;
 import hu.bme.mit.theta.core.stmt.AssignStmt;
@@ -21,8 +19,14 @@ import hu.bme.mit.theta.core.type.arraytype.ArrayType;
 import hu.bme.mit.theta.core.type.booltype.BoolType;
 import hu.bme.mit.theta.core.type.bvtype.BvType;
 import hu.bme.mit.theta.core.type.inttype.IntType;
-import hu.bme.mit.theta.solver.SolverFactory;
-import hu.bme.mit.theta.solver.z3.Z3SolverFactory;
+import hu.bme.mit.theta.sts.STS;
+import hu.bme.mit.theta.sts.StsUtils;
+import hu.bme.mit.theta.sts.aiger.AigerParser;
+import hu.bme.mit.theta.sts.aiger.AigerToSts;
+import hu.bme.mit.theta.sts.aiger.elements.AigerSystem;
+import hu.bme.mit.theta.sts.aiger.utils.AigerCoi;
+import hu.bme.mit.theta.sts.dsl.StsDslManager;
+import hu.bme.mit.theta.sts.dsl.StsSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
@@ -30,11 +34,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.Blob;
 import java.util.*;
 
 @Service
@@ -90,7 +89,7 @@ public class ModelService {
         GetModelMetricsResponse getModelMetricsResponse = new GetModelMetricsResponse();
         try {
             ModelEntity modelEntity = getModelMetadata(modelId);
-            CFA cfa = loadModel(modelEntity);
+            CFA cfa = loadCfaModel(modelEntity);
             getModelMetricsResponse.setVars(cfa.getVars().size());
             getModelMetricsResponse.setBoolVars(cfa.getVars().stream().filter(v -> v.getType() instanceof BoolType).count());
             getModelMetricsResponse.setIntVars(cfa.getVars().stream().filter(v -> v.getType() instanceof IntType).count());
@@ -112,7 +111,7 @@ public class ModelService {
     public FileSystemResource visualizeModel(UUID modelId) throws Exception {
         try {
             ModelEntity modelEntity = getModelMetadata(modelId);
-            CFA cfa = loadModel(modelEntity);
+            CFA cfa = loadCfaModel(modelEntity);
             final Graph graph = CfaVisualizer.visualize(cfa);
             writeFile(graph, modelId.toString(), GraphvizWriter.Format.PNG);
             return localBlobStore.getVisualizedBlob(modelId, "png");
@@ -121,12 +120,31 @@ public class ModelService {
         }
     }
 
-    public CFA loadModel(ModelEntity modelEntity) throws Exception {
+    public CFA loadCfaModel(ModelEntity modelEntity) throws Exception {
         FileSystemResource modelFile = localBlobStore.getModelBlob(modelEntity);
         try {
             return CfaDslManager.createCfa(modelFile.getInputStream());
         } catch (final Exception ex) {
             throw new Exception("Could not parse CFA: " + ex.getMessage(), ex);
+        }
+    }
+
+    public STS loadStsModel(ModelEntity modelEntity) throws Exception {
+        FileSystemResource modelFile = localBlobStore.getModelBlob(modelEntity);
+        try {
+            if (modelFile.getFilename().endsWith(".aag")) {
+                final AigerSystem aigerSystem = AigerParser.parse(modelFile.getPath());
+                AigerCoi.apply(aigerSystem);
+                return AigerToSts.createSts(aigerSystem);
+            } else {
+                final StsSpec spec = StsDslManager.createStsSpec(modelFile.getInputStream());
+                if (spec.getAllSts().size() != 1) {
+                    throw new UnsupportedOperationException("STS contains multiple properties.");
+                }
+                return StsUtils.eliminateIte(Utils.singleElementOf(spec.getAllSts()));
+            }
+        } catch (Exception ex) {
+            throw new Exception("Could not parse STS: " + ex.getMessage(), ex);
         }
     }
 

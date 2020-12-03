@@ -344,6 +344,13 @@ components:
           enum:
           - SBE
           - LBE
+        pruneStrategy:
+          type: string
+          description: Strategy for pruning the ARG after refinement
+          default: LAZY
+          enum:
+            - LAZY
+            - FULL
         initPrec:
           type: string
           description: Initial precision of abstraction
@@ -366,10 +373,6 @@ components:
         visualize:
           type: string
           description: Visualize CFA to a file without running the algorithm
-        metrics:
-          type: boolean
-          description: Print metrics about the CFA without running the algorithm
-          default: false
         stacktrace:
           type: boolean
           description: Print full stack trace in case of exception
