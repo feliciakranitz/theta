@@ -46,6 +46,8 @@ dependencies {
 	compile(project(":theta-sts-analysis"))
 	compile(project(":theta-xta"))
 	compile(project(":theta-xta-analysis"))
+	compile(project(":theta-xsts"))
+	compile(project(":theta-xsts-analysis"))
 }
 
 

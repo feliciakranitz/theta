@@ -131,4 +131,18 @@ public class ModelApiController implements ModelApi {
         return new ResponseEntity<Resource>(HttpStatus.NOT_IMPLEMENTED);
     }
 
+    public ResponseEntity<List<StartProcessResponse>> startAnalysis2(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId,@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())  @RequestBody Body1 body) {
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("application/json")) {
+            try {
+                return new ResponseEntity<List<StartProcessResponse>>(objectMapper.readValue("[ {\n  \"processId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}, {\n  \"processId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
+            } catch (IOException e) {
+                log.error("Couldn't serialize response for content type application/json", e);
+                return new ResponseEntity<List<StartProcessResponse>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        return new ResponseEntity<List<StartProcessResponse>>(HttpStatus.NOT_IMPLEMENTED);
+    }
+
 }

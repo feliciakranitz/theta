@@ -23,7 +23,9 @@ CREATE TABLE IF NOT EXISTS configuration (
   initPrec VARCHAR(60),
   pruneStrategy VARCHAR(60),
   logLevel VARCHAR(60),
-  benchmarkMode BOOLEAN,
+  dataStrategy VARCHAR(60),
+  clockStrategy VARCHAR(60),
+  property VARCHAR(60),
   cexFile BOOLEAN,
   stacktrace BOOLEAN,
   creationTime TIMESTAMP);

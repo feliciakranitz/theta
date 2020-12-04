@@ -2,11 +2,16 @@ package hu.bme.mit.theta.cloud.worker;
 
 import com.google.common.base.Stopwatch;
 import hu.bme.mit.theta.analysis.Trace;
+import hu.bme.mit.theta.analysis.algorithm.SafetyChecker;
 import hu.bme.mit.theta.analysis.algorithm.SafetyResult;
+import hu.bme.mit.theta.analysis.algorithm.SearchStrategy;
 import hu.bme.mit.theta.analysis.algorithm.cegar.CegarStatistics;
 import hu.bme.mit.theta.analysis.expl.ExplState;
 import hu.bme.mit.theta.analysis.expr.ExprState;
 import hu.bme.mit.theta.analysis.expr.refinement.PruneStrategy;
+import hu.bme.mit.theta.analysis.unit.UnitPrec;
+import hu.bme.mit.theta.analysis.utils.ArgVisualizer;
+import hu.bme.mit.theta.analysis.utils.TraceVisualizer;
 import hu.bme.mit.theta.cfa.CFA;
 import hu.bme.mit.theta.cfa.analysis.CfaAction;
 import hu.bme.mit.theta.cfa.analysis.CfaState;
@@ -22,6 +27,8 @@ import hu.bme.mit.theta.cloud.repository.datamodel.JobEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
 import hu.bme.mit.theta.common.logging.FileLogger;
 import hu.bme.mit.theta.common.logging.Logger;
+import hu.bme.mit.theta.common.visualization.Graph;
+import hu.bme.mit.theta.common.visualization.writer.GraphvizWriter;
 import hu.bme.mit.theta.core.model.Valuation;
 import hu.bme.mit.theta.solver.SolverFactory;
 import hu.bme.mit.theta.solver.z3.Z3SolverFactory;
@@ -30,6 +37,18 @@ import hu.bme.mit.theta.sts.analysis.StsAction;
 import hu.bme.mit.theta.sts.analysis.StsTraceConcretizer;
 import hu.bme.mit.theta.sts.analysis.config.StsConfig;
 import hu.bme.mit.theta.sts.analysis.config.StsConfigBuilder;
+import hu.bme.mit.theta.xsts.XSTS;
+import hu.bme.mit.theta.xsts.analysis.XstsAction;
+import hu.bme.mit.theta.xsts.analysis.XstsState;
+import hu.bme.mit.theta.xsts.analysis.concretizer.XstsStateSequence;
+import hu.bme.mit.theta.xsts.analysis.concretizer.XstsTraceConcretizerUtil;
+import hu.bme.mit.theta.xsts.analysis.config.XstsConfig;
+import hu.bme.mit.theta.xsts.analysis.config.XstsConfigBuilder;
+import hu.bme.mit.theta.xta.XtaSystem;
+import hu.bme.mit.theta.xta.analysis.lazy.ClockStrategy;
+import hu.bme.mit.theta.xta.analysis.lazy.DataStrategy;
+import hu.bme.mit.theta.xta.analysis.lazy.LazyXtaCheckerFactory;
+import hu.bme.mit.theta.xta.analysis.lazy.LazyXtaStatistics;
 
 import java.io.*;
 import java.util.concurrent.TimeUnit;
@@ -75,12 +94,18 @@ public class ThetaAnalyser implements Analyser {
                 }
                 break;
             case "XTA":
-                System.out.println("xta model");
-                //runXtaAnalysis();
+                try {
+                    runXtaAnalysis(jobEntity, progressListener);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             case "XSTS":
-                System.out.println("xts model");
-                //runXstsAnalysis();
+                try {
+                    runXstsAnalysis(jobEntity, progressListener);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
                 break;
             default:
                 return;
@@ -162,10 +187,59 @@ public class ThetaAnalyser implements Analyser {
         progressListener.onComplete(true);
     }
 
-    private void runXtaAnalysis() {
+    private void runXtaAnalysis(JobEntity jobEntity, AnalysisProgressListener progressListener) throws Exception {
+        ModelEntity modelEntity = jobEntity.getModel();
+        ConfigurationEntity configurationEntity = jobEntity.getConfig();
+        logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, true);
+
+        try {
+            final XtaSystem system = modelService.loadXtaModel(modelEntity);
+            final SafetyChecker<?, ?, UnitPrec> checker = LazyXtaCheckerFactory.create(system,
+                    DataStrategy.valueOf(configurationEntity.getDataStrategy()),
+                    ClockStrategy.valueOf(configurationEntity.getClockStrategy()),
+                    SearchStrategy.valueOf(configurationEntity.getClockStrategy()));
+            final SafetyResult<?, ?> result = xtaCheck(checker);
+
+            // TODO: create benchmark entity
+           // final LazyXtaStatistics stats = (LazyXtaStatistics) result.getStats().get();
+
+            jobEntity.setSafe(result.isSafe());
+
+            if (configurationEntity.getCexFile() != null) {
+                writeVisualStatus(result, jobEntity);
+            }
+
+            jobRepository.save(jobEntity);
+            progressListener.onComplete(true);
+
+        } catch (final Throwable ex) {
+            progressListener.onComplete(false);
+        }
     }
 
-    private void runXstsAnalysis() {
+    private void runXstsAnalysis(JobEntity jobEntity, AnalysisProgressListener progressListener) throws FileNotFoundException {
+        ModelEntity modelEntity = jobEntity.getModel();
+        ConfigurationEntity configurationEntity = jobEntity.getConfig();
+        logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, true);
+
+        try {
+            final Stopwatch sw = Stopwatch.createStarted();
+            final XSTS xsts = modelService.loadXstsModel(modelEntity, configurationEntity);
+            final XstsConfig<?, ?, ?> configuration = buildConfiguration(xsts, configurationEntity);
+            final SafetyResult<?, ?> result = xstsCheck(configuration);
+            sw.stop();
+
+            AnalysisBenchmarkEntity analysisBenchmarkEntity = mapToBenchmarkEntity(result, sw.elapsed(TimeUnit.MILLISECONDS));
+            analysisBenchmarkEntity = analysisBenchmarkRepository.save(analysisBenchmarkEntity);
+            jobEntity.setSafe(result.isSafe());
+            jobEntity.setBenchmark(analysisBenchmarkEntity);
+
+            if (result.isUnsafe() && configurationEntity.getCexFile() != null) {
+                writeXstsCex(result.asUnsafe(), xsts, jobEntity);
+            }
+        } catch (final Throwable ex) {
+            progressListener.onComplete(false);
+        }
     }
 
     private CfaConfig<?, ?, ?> buildCfaConfiguration(final CFA cfa, CFA.Loc errorLoc, ConfigurationEntity configuration) {
@@ -197,6 +271,22 @@ public class ThetaAnalyser implements Analyser {
         }
     }
 
+    private XstsConfig<?, ?, ?> buildConfiguration(final XSTS xsts, ConfigurationEntity configuration) throws Exception {
+        try {
+            return new XstsConfigBuilder(XstsConfigBuilder.Domain.valueOf(configuration.getDomainName()),
+                    XstsConfigBuilder.Refinement.valueOf(configuration.getRefinement()),
+                    Z3SolverFactory.getInstance())
+                    .maxEnum(configuration.getMaxEnum())
+                    .initPrec(XstsConfigBuilder.InitPrec.valueOf(configuration.getInitPrec()))
+                    .pruneStrategy(PruneStrategy.valueOf(configuration.getPruneStrategy()))
+                    .search(XstsConfigBuilder.Search.valueOf(configuration.getSearch()))
+                    .predSplit(XstsConfigBuilder.PredSplit.valueOf(configuration.getPredSplit()))
+                    .logger(logger).build(xsts);
+        } catch (final Exception ex) {
+            throw new Exception("Could not create configuration: " + ex.getMessage(), ex);
+        }
+    }
+
     private SafetyResult<?, ?> cfaCheck(CfaConfig<?, ?, ?> configuration) throws Exception {
         try {
             return configuration.check();
@@ -206,6 +296,22 @@ public class ThetaAnalyser implements Analyser {
     }
 
     private SafetyResult<?, ?> stsCheck(StsConfig<?, ?, ?> configuration) throws Exception {
+        try {
+            return configuration.check();
+        } catch (final Exception ex) {
+            throw new Exception("Error while running algorithm: " + ex.getMessage(), ex);
+        }
+    }
+
+    private SafetyResult<?, ?> xtaCheck(SafetyChecker<?, ?, UnitPrec> checker) throws Exception {
+        try {
+            return checker.check(UnitPrec.getInstance());
+        } catch (final Exception ex) {
+            throw new Exception("Error while running algorithm: " + ex.getMessage(), ex);
+        }
+    }
+
+    private SafetyResult<?, ?> xstsCheck(XstsConfig<?, ?, ?> configuration) throws Exception {
         try {
             return configuration.check();
         } catch (final Exception ex) {
@@ -263,6 +369,32 @@ public class ThetaAnalyser implements Analyser {
                 printWriter.close();
             }
         }
+    }
+
+    private void writeXstsCex(final SafetyResult.Unsafe<?, ?> status, final XSTS xsts, JobEntity jobEntity) throws FileNotFoundException {
+        //TODO remove temp vars, replace int values with literals
+
+        @SuppressWarnings("unchecked") final Trace<XstsState<?>, XstsAction> trace = (Trace<XstsState<?>, XstsAction>) status.getTrace();
+        final XstsStateSequence concrTrace = XstsTraceConcretizerUtil.concretize(trace, Z3SolverFactory.getInstance(), xsts);
+        final File file = new File("/tmp/theta/cexFiles/" + jobEntity.getJobId() + ".txt");
+        PrintWriter printWriter = null;
+        try {
+            printWriter = new PrintWriter(file);
+            printWriter.write(concrTrace.toString());
+        } finally {
+            if (printWriter != null) {
+                printWriter.close();
+            }
+        }
+    }
+
+    private void writeVisualStatus(final SafetyResult<?, ?> status, JobEntity jobEntity)
+            throws FileNotFoundException {
+        final File file = new File("/tmp/theta/cexFiles/" + jobEntity.getJobId() + ".dot");
+
+        final Graph graph = status.isSafe() ? ArgVisualizer.getDefault().visualize(status.asSafe().getArg())
+                : TraceVisualizer.getDefault().visualize(status.asUnsafe().getTrace());
+        GraphvizWriter.getInstance().writeFile(graph, file.getPath());
     }
 
     private void logError(ConfigurationEntity configurationEntity, final Throwable ex) {

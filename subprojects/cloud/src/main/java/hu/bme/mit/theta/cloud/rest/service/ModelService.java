@@ -4,6 +4,7 @@ import hu.bme.mit.theta.cfa.CFA;
 import hu.bme.mit.theta.cfa.analysis.utils.CfaVisualizer;
 import hu.bme.mit.theta.cfa.dsl.CfaDslManager;
 import hu.bme.mit.theta.cloud.blobstore.LocalBlobStore;
+import hu.bme.mit.theta.cloud.repository.datamodel.ConfigurationEntity;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.contollers.NotFoundException;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.CreateModelResponse;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.GetModelMetricsResponse;
@@ -27,6 +28,10 @@ import hu.bme.mit.theta.sts.aiger.elements.AigerSystem;
 import hu.bme.mit.theta.sts.aiger.utils.AigerCoi;
 import hu.bme.mit.theta.sts.dsl.StsDslManager;
 import hu.bme.mit.theta.sts.dsl.StsSpec;
+import hu.bme.mit.theta.xsts.XSTS;
+import hu.bme.mit.theta.xsts.dsl.XstsDslManager;
+import hu.bme.mit.theta.xta.XtaSystem;
+import hu.bme.mit.theta.xta.dsl.XtaDslManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
@@ -145,6 +150,34 @@ public class ModelService {
             }
         } catch (Exception ex) {
             throw new Exception("Could not parse STS: " + ex.getMessage(), ex);
+        }
+    }
+
+    public XtaSystem loadXtaModel(ModelEntity modelEntity) throws Exception {
+        FileSystemResource modelFile = localBlobStore.getModelBlob(modelEntity);
+        try {
+            return XtaDslManager.createSystem(modelFile.getInputStream());
+        } catch (Exception ex) {
+            throw new Exception("Could not parse XTA: " + ex.getMessage(), ex);
+        }
+    }
+
+    public XSTS loadXstsModel(ModelEntity modelEntity, ConfigurationEntity configurationEntity) throws Exception {
+        InputStream propStream = null;
+        String property = configurationEntity.getProperty();
+        try {
+            if (property.endsWith(".prop")){
+
+                propStream = localBlobStore.getModelBlob(modelEntity).getInputStream();
+            }
+            else propStream = new ByteArrayInputStream(("prop { " + property + " }").getBytes());
+            try (SequenceInputStream inputStream = new SequenceInputStream(localBlobStore.getModelBlob(modelEntity).getInputStream(), propStream)) {
+                return XstsDslManager.createXsts(inputStream);
+            }
+        } catch (Exception ex) {
+            throw new Exception("Could not parse XSTS: " + ex.getMessage(), ex);
+        } finally {
+            if (propStream != null) propStream.close();
         }
     }
 

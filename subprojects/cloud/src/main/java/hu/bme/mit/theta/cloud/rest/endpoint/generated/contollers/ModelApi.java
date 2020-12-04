@@ -116,5 +116,17 @@ public interface ModelApi {
         method = RequestMethod.GET)
     ResponseEntity<Resource> visualizeModel(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId);
 
+    @Operation(summary = "", description = "Starts analysis process on the model with the given parameters", tags={ "job" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Analysis started successfully", content = @Content(array = @ArraySchema(schema = @Schema(implementation = StartProcessResponse.class)))),
+
+            @ApiResponse(responseCode = "404", description = "Model with the given id not found"),
+
+            @ApiResponse(responseCode = "500", description = "The error response if something goes wrong.") })
+    @RequestMapping(value = "/model/{modelId}",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<List<StartProcessResponse>> startAnalysis2(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())  @RequestBody Body1 body);
 }
 

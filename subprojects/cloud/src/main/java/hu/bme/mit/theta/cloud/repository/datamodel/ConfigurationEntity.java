@@ -45,6 +45,15 @@ public class ConfigurationEntity {
     @Column(name = "prune_strategy")
     private String pruneStrategy;
 
+    @Column(name = "data_strategy")
+    private String dataStrategy;
+
+    @Column(name = "clock_strategy")
+    private String clockStrategy;
+
+    @Column(name = "property")
+    private String property;
+
     @Column(name = "log_level")
     private String logLevel;
 
@@ -171,5 +180,29 @@ public class ConfigurationEntity {
 
     public void setMaxEnum(Integer maxEnum) {
         this.maxEnum = maxEnum;
+    }
+
+    public String getDataStrategy() {
+        return dataStrategy;
+    }
+
+    public void setDataStrategy(String dataStrategy) {
+        this.dataStrategy = dataStrategy;
+    }
+
+    public String getClockStrategy() {
+        return clockStrategy;
+    }
+
+    public void setClockStrategy(String clockStrategy) {
+        this.clockStrategy = clockStrategy;
+    }
+
+    public String getProperty() {
+        return property;
+    }
+
+    public void setProperty(String property) {
+        this.property = property;
     }
 }
