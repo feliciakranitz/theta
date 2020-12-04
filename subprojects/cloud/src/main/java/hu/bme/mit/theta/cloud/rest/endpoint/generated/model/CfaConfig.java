@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
 
 /**
  * CfaConfig
@@ -313,7 +312,7 @@ public class CfaConfig   {
   private InitPrecEnum initPrec = InitPrecEnum.EMPTY;
 
   @JsonProperty("maxEnum")
-  private BigDecimal maxEnum = 10;
+  private Integer maxEnum = 10;
 
   @JsonProperty("cexFile")
   private Boolean cexFile = false;
@@ -361,6 +360,9 @@ public class CfaConfig   {
   }
   @JsonProperty("logLevel")
   private LogLevelEnum logLevel = LogLevelEnum.SUBSTEP;
+
+  @JsonProperty("errorLoc")
+  private String errorLoc = null;
 
   public CfaConfig domain(DomainEnum domain) {
     this.domain = domain;
@@ -506,7 +508,7 @@ public class CfaConfig   {
     this.initPrec = initPrec;
   }
 
-  public CfaConfig maxEnum(BigDecimal maxEnum) {
+  public CfaConfig maxEnum(Integer maxEnum) {
     this.maxEnum = maxEnum;
     return this;
   }
@@ -516,11 +518,11 @@ public class CfaConfig   {
    * @return maxEnum
    **/
   @Schema(description = "Maximal number of explicitly enumerated successors ( zero is  unlimited)")
-    public BigDecimal getMaxEnum() {
+    public Integer getMaxEnum() {
     return maxEnum;
   }
 
-  public void setMaxEnum(BigDecimal maxEnum) {
+  public void setMaxEnum(Integer maxEnum) {
     this.maxEnum = maxEnum;
   }
 
@@ -578,6 +580,24 @@ public class CfaConfig   {
     this.logLevel = logLevel;
   }
 
+  public CfaConfig errorLoc(String errorLoc) {
+    this.errorLoc = errorLoc;
+    return this;
+  }
+
+  /**
+   * Get errorLoc
+   * @return errorLoc
+   **/
+  @Schema(description = "")
+    public String getErrorLoc() {
+    return errorLoc;
+  }
+
+  public void setErrorLoc(String errorLoc) {
+    this.errorLoc = errorLoc;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -599,12 +619,13 @@ public class CfaConfig   {
         Objects.equals(this.maxEnum, cfaConfig.maxEnum) &&
         Objects.equals(this.cexFile, cfaConfig.cexFile) &&
         Objects.equals(this.stacktrace, cfaConfig.stacktrace) &&
-        Objects.equals(this.logLevel, cfaConfig.logLevel);
+        Objects.equals(this.logLevel, cfaConfig.logLevel) &&
+        Objects.equals(this.errorLoc, cfaConfig.errorLoc);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(domain, refinement, search, predSplit, precGranularity, encoding, pruneStrategy, initPrec, maxEnum, cexFile, stacktrace, logLevel);
+    return Objects.hash(domain, refinement, search, predSplit, precGranularity, encoding, pruneStrategy, initPrec, maxEnum, cexFile, stacktrace, logLevel, errorLoc);
   }
 
   @Override
@@ -624,6 +645,7 @@ public class CfaConfig   {
     sb.append("    cexFile: ").append(toIndentedString(cexFile)).append("\n");
     sb.append("    stacktrace: ").append(toIndentedString(stacktrace)).append("\n");
     sb.append("    logLevel: ").append(toIndentedString(logLevel)).append("\n");
+    sb.append("    errorLoc: ").append(toIndentedString(errorLoc)).append("\n");
     sb.append("}");
     return sb.toString();
   }

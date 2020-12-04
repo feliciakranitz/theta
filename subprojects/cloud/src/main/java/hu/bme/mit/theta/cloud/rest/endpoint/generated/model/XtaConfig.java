@@ -118,6 +118,12 @@ public class XtaConfig   {
   @JsonProperty("searchStrategy")
   private SearchStrategyEnum searchStrategy = SearchStrategyEnum.BFS;
 
+  @JsonProperty("visualize")
+  private Boolean visualize = false;
+
+  @JsonProperty("stacktrace")
+  private Boolean stacktrace = false;
+
   public XtaConfig dataStrategy(DataStrategyEnum dataStrategy) {
     this.dataStrategy = dataStrategy;
     return this;
@@ -172,6 +178,42 @@ public class XtaConfig   {
     this.searchStrategy = searchStrategy;
   }
 
+  public XtaConfig visualize(Boolean visualize) {
+    this.visualize = visualize;
+    return this;
+  }
+
+  /**
+   * Should create counterexample
+   * @return visualize
+   **/
+  @Schema(description = "Should create counterexample")
+    public Boolean isVisualize() {
+    return visualize;
+  }
+
+  public void setVisualize(Boolean visualize) {
+    this.visualize = visualize;
+  }
+
+  public XtaConfig stacktrace(Boolean stacktrace) {
+    this.stacktrace = stacktrace;
+    return this;
+  }
+
+  /**
+   * Print full stack trace in case of exception
+   * @return stacktrace
+   **/
+  @Schema(description = "Print full stack trace in case of exception")
+    public Boolean isStacktrace() {
+    return stacktrace;
+  }
+
+  public void setStacktrace(Boolean stacktrace) {
+    this.stacktrace = stacktrace;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -184,12 +226,14 @@ public class XtaConfig   {
     XtaConfig xtaConfig = (XtaConfig) o;
     return Objects.equals(this.dataStrategy, xtaConfig.dataStrategy) &&
         Objects.equals(this.clockStrategy, xtaConfig.clockStrategy) &&
-        Objects.equals(this.searchStrategy, xtaConfig.searchStrategy);
+        Objects.equals(this.searchStrategy, xtaConfig.searchStrategy) &&
+        Objects.equals(this.visualize, xtaConfig.visualize) &&
+        Objects.equals(this.stacktrace, xtaConfig.stacktrace);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(dataStrategy, clockStrategy, searchStrategy);
+    return Objects.hash(dataStrategy, clockStrategy, searchStrategy, visualize, stacktrace);
   }
 
   @Override
@@ -200,6 +244,8 @@ public class XtaConfig   {
     sb.append("    dataStrategy: ").append(toIndentedString(dataStrategy)).append("\n");
     sb.append("    clockStrategy: ").append(toIndentedString(clockStrategy)).append("\n");
     sb.append("    searchStrategy: ").append(toIndentedString(searchStrategy)).append("\n");
+    sb.append("    visualize: ").append(toIndentedString(visualize)).append("\n");
+    sb.append("    stacktrace: ").append(toIndentedString(stacktrace)).append("\n");
     sb.append("}");
     return sb.toString();
   }

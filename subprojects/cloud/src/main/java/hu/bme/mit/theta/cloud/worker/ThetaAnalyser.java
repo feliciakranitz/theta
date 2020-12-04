@@ -48,7 +48,6 @@ import hu.bme.mit.theta.xta.XtaSystem;
 import hu.bme.mit.theta.xta.analysis.lazy.ClockStrategy;
 import hu.bme.mit.theta.xta.analysis.lazy.DataStrategy;
 import hu.bme.mit.theta.xta.analysis.lazy.LazyXtaCheckerFactory;
-import hu.bme.mit.theta.xta.analysis.lazy.LazyXtaStatistics;
 
 import java.io.*;
 import java.util.concurrent.TimeUnit;
@@ -108,7 +107,7 @@ public class ThetaAnalyser implements Analyser {
                 }
                 break;
             default:
-                return;
+                throw new IllegalArgumentException();
         }
     }
 
