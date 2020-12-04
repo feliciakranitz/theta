@@ -156,6 +156,10 @@ public class ThetaAnalyser implements Analyser {
         if (status.isUnsafe() && configurationEntity.getCexFile()) {
             writeStsCex(sts, status.asUnsafe(), jobEntity);
         }
+
+        jobRepository.save(jobEntity);
+
+        progressListener.onComplete(true);
     }
 
     private void runXtaAnalysis() {

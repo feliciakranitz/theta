@@ -5,6 +5,7 @@
  */
 package hu.bme.mit.theta.cloud.rest.endpoint.generated.contollers;
 
+import java.util.ArrayList;
 import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.AllJobsResponse;
@@ -44,7 +45,7 @@ public interface JobsApi {
     @RequestMapping(value = "/jobs",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<AllJobsResponse> getAllJobs();
+    ResponseEntity<ArrayList<JobResponse>> getAllJobs();
 
 
     @Operation(summary = "", description = "Get the result of the analysis with the given Id", tags={ "job" })
@@ -83,9 +84,9 @@ public interface JobsApi {
         
         @ApiResponse(responseCode = "500", description = "The error response if something goes wrong.") })
     @RequestMapping(value = "/jobs/{jobId}/log",
-        produces = { "application/pdf" }, 
+        produces = MediaType.APPLICATION_OCTET_STREAM_VALUE ,
         method = RequestMethod.GET)
-    ResponseEntity<byte[]> getLogFile(@Parameter(in = ParameterIn.PATH, description = "The analysis job id", required=true, schema=@Schema()) @PathVariable("jobId") UUID jobId);
+    ResponseEntity<Resource> getLogFile(@Parameter(in = ParameterIn.PATH, description = "The analysis job id", required=true, schema=@Schema()) @PathVariable("jobId") UUID jobId);
 
 }
 

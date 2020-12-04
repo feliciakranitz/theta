@@ -30,7 +30,7 @@ public class ConfigService {
             configurationEntity.setEncoding(config.getEncoding().toString());
             configurationEntity.setMaxEnum(config.getMaxEnum());
             configurationEntity.setInitPrec(config.getInitPrec().toString());
-            configurationEntity.setPruneStrategy(null);
+            configurationEntity.setPruneStrategy(config.getPruneStrategy().toString());
             configurationEntity.setLogLevel(config.getLogLevel().toString());
             configurationEntity.setBenchmarkMode(config.isBenchmark());
             configurationEntity.setStacktrace(config.isStacktrace());

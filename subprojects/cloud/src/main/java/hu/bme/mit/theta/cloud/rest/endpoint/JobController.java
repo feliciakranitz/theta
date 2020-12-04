@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,8 +35,9 @@ public class JobController implements JobsApi {
     }
 
     @Override
-    public ResponseEntity<AllJobsResponse> getAllJobs() {
-        return null;
+    public ResponseEntity<ArrayList<JobResponse>> getAllJobs() {
+        ArrayList<JobResponse> jobResponses = jobService.getAllJob();
+        return ResponseEntity.ok(jobResponses);
     }
 
     @Override
@@ -73,7 +75,7 @@ public class JobController implements JobsApi {
     }
 
     @Override
-    public ResponseEntity<byte[]> getLogFile(UUID jobId) {
+    public ResponseEntity<Resource> getLogFile(UUID jobId) {
         return null;
     }
 }
