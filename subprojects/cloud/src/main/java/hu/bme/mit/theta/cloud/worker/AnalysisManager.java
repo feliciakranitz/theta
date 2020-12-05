@@ -102,9 +102,11 @@ public class AnalysisManager implements Managed {
     }
 
     private void reportAnalysisCompleted(JobEntity job, boolean successful) {
+        String jobStatus = successful ? JobStatus.COMPLETED.toString() : JobStatus.FAILED.toString();
         job.setProgress(100);
-        job.setStatus(successful ? JobStatus.COMPLETED.toString() : JobStatus.FAILED.toString());
+        job.setStatus(jobStatus);
 
         jobRepository.save(job);
+        mailService.sendMail(job, jobStatus);
     }
 }

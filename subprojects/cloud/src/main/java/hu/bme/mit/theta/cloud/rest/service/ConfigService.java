@@ -31,6 +31,7 @@ public class ConfigService {
             configurationEntity.setSearch(config.getSearch().toString());
             configurationEntity.setEncoding(config.getEncoding().toString());
             configurationEntity.setMaxEnum(config.getMaxEnum());
+            configurationEntity.setCexFile(config.isCexFile());
             configurationEntity.setInitPrec(config.getInitPrec().toString());
             configurationEntity.setPruneStrategy(config.getPruneStrategy().toString());
             configurationEntity.setLogLevel(config.getLogLevel().toString());

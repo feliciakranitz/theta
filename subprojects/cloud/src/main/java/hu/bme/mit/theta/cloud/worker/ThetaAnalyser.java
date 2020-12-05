@@ -48,6 +48,7 @@ import hu.bme.mit.theta.xta.XtaSystem;
 import hu.bme.mit.theta.xta.analysis.lazy.ClockStrategy;
 import hu.bme.mit.theta.xta.analysis.lazy.DataStrategy;
 import hu.bme.mit.theta.xta.analysis.lazy.LazyXtaCheckerFactory;
+import hu.bme.mit.theta.xta.analysis.lazy.LazyXtaStatistics;
 
 import java.io.*;
 import java.util.concurrent.TimeUnit;
@@ -147,7 +148,7 @@ public class ThetaAnalyser implements Analyser {
             jobEntity.setSafe(status.isSafe());
             jobEntity.setBenchmark(analysisBenchmarkEntity);
 
-            if (status.isUnsafe() && configurationEntity.getCexFile()) {
+            if (status.isUnsafe() && configurationEntity.getCexFile() != null) {
                 writeCfaCex(status.asUnsafe(), jobEntity);
             }
 
@@ -202,12 +203,16 @@ public class ThetaAnalyser implements Analyser {
                     SearchStrategy.valueOf(configurationEntity.getSearch()));
             final SafetyResult<?, ?> result = xtaCheck(checker);
 
-            // TODO: create benchmark entity
-           // final LazyXtaStatistics stats = (LazyXtaStatistics) result.getStats().get();
+            final LazyXtaStatistics stats = (LazyXtaStatistics) result.getStats().get();
+            AnalysisBenchmarkEntity analysisBenchmarkEntity = new AnalysisBenchmarkEntity();
+            analysisBenchmarkEntity.setAlgorithmTimeMs(stats.getAlgorithmTimeInMs());
+            analysisBenchmarkEntity.setArgDepth((int) stats.getArgDepth());
+            analysisBenchmarkEntity = analysisBenchmarkRepository.save(analysisBenchmarkEntity);
 
             jobEntity.setSafe(result.isSafe());
+            jobEntity.setBenchmark(analysisBenchmarkEntity);
 
-            if (configurationEntity.getCexFile() != null) {
+            if (configurationEntity.getCexFile()) {
                 writeVisualStatus(result, jobEntity);
             }
 
@@ -404,6 +409,7 @@ public class ThetaAnalyser implements Analyser {
         final Graph graph = status.isSafe() ? ArgVisualizer.getDefault().visualize(status.asSafe().getArg())
                 : TraceVisualizer.getDefault().visualize(status.asUnsafe().getTrace());
         GraphvizWriter.getInstance().writeFile(graph, file.getPath());
+        jobEntity.setCexFile(true);
     }
 
     private void logError(ConfigurationEntity configurationEntity, final Throwable ex) {

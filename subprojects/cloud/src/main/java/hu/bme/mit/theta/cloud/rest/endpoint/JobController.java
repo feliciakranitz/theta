@@ -28,7 +28,7 @@ public class JobController implements JobsApi {
     @Autowired
     private JobService jobService;
 
-    private final LocalBlobStore localBlobStore= new LocalBlobStore();
+    private final LocalBlobStore localBlobStore = new LocalBlobStore();
 
     @Override
     public Optional<ObjectMapper> getObjectMapper() {
@@ -57,18 +57,20 @@ public class JobController implements JobsApi {
             jobResponse.setHasCex(jobEntity.isCexFile());
             jobResponse.setIsSafe(jobEntity.isSafe());
 
-            AnalysisBenchmark analysisBenchmark = new AnalysisBenchmark();
-            analysisBenchmark.setTimeElapsed(jobEntity.getBenchmark().getTimeElapsed());
-            analysisBenchmark.setAlgorithmTimeMs(jobEntity.getBenchmark().getAlgorithmTimeMs());
-            analysisBenchmark.setAbstractorTimeMs(jobEntity.getBenchmark().getAbstractorTimeMs());
-            analysisBenchmark.setRefinerTimeMs(jobEntity.getBenchmark().getRefinerTimeMs());
-            analysisBenchmark.setIterations(jobEntity.getBenchmark().getIterations());
-            analysisBenchmark.setArgSize(jobEntity.getBenchmark().getArgSize());
-            analysisBenchmark.setArgDepth(jobEntity.getBenchmark().getArgDepth());
-            analysisBenchmark.setArgMeanBranchingFactor((long) jobEntity.getBenchmark().getArgMeanBranchingFactor());
+            if (jobEntity.getBenchmark() != null) {
 
-            jobResponse.setAnalysisBenchmark(analysisBenchmark);
+                AnalysisBenchmark analysisBenchmark = new AnalysisBenchmark();
+                analysisBenchmark.setTimeElapsed(jobEntity.getBenchmark().getTimeElapsed());
+                analysisBenchmark.setAlgorithmTimeMs(jobEntity.getBenchmark().getAlgorithmTimeMs());
+                analysisBenchmark.setAbstractorTimeMs(jobEntity.getBenchmark().getAbstractorTimeMs());
+                analysisBenchmark.setRefinerTimeMs(jobEntity.getBenchmark().getRefinerTimeMs());
+                analysisBenchmark.setIterations(jobEntity.getBenchmark().getIterations());
+                analysisBenchmark.setArgSize(jobEntity.getBenchmark().getArgSize());
+                analysisBenchmark.setArgDepth(jobEntity.getBenchmark().getArgDepth());
+                analysisBenchmark.setArgMeanBranchingFactor((long) jobEntity.getBenchmark().getArgMeanBranchingFactor());
 
+                jobResponse.setAnalysisBenchmark(analysisBenchmark);
+            }
             return ResponseEntity.ok(jobResponse);
         } catch (NotFoundException e) {
             return ResponseEntity.notFound().build();

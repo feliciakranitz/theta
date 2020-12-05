@@ -133,7 +133,7 @@ public class JobService {
     }
 
     public FileSystemResource getCexFile(UUID jobId) throws NotFoundException, IOException {
-        String format = getJob(jobId).getConfig().getConfigType() == "XTA" ? "dot" : "txt";
+        String format = getJob(jobId).getConfig().getConfigType().equals("XTA") ? "dot" : "txt";
         return localBlobStore.getCexBlob(jobId, format);
     }
 
