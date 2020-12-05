@@ -165,6 +165,8 @@ public class ThetaAnalyser implements Analyser {
         ConfigurationEntity configurationEntity = jobEntity.getConfig();
         logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, true);
 
+        progressListener.onBegin();
+
         final Stopwatch sw = Stopwatch.createStarted();
         final STS sts = modelService.loadStsModel(modelEntity);
         final StsConfig<?, ?, ?> configuration = buildStsConfiguration(sts, configurationEntity);
@@ -189,14 +191,15 @@ public class ThetaAnalyser implements Analyser {
     private void runXtaAnalysis(JobEntity jobEntity, AnalysisProgressListener progressListener) throws Exception {
         ModelEntity modelEntity = jobEntity.getModel();
         ConfigurationEntity configurationEntity = jobEntity.getConfig();
-        logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, true);
+        //logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, true);
 
         try {
+            progressListener.onBegin();
             final XtaSystem system = modelService.loadXtaModel(modelEntity);
             final SafetyChecker<?, ?, UnitPrec> checker = LazyXtaCheckerFactory.create(system,
                     DataStrategy.valueOf(configurationEntity.getDataStrategy()),
                     ClockStrategy.valueOf(configurationEntity.getClockStrategy()),
-                    SearchStrategy.valueOf(configurationEntity.getClockStrategy()));
+                    SearchStrategy.valueOf(configurationEntity.getSearch()));
             final SafetyResult<?, ?> result = xtaCheck(checker);
 
             // TODO: create benchmark entity
@@ -212,6 +215,7 @@ public class ThetaAnalyser implements Analyser {
             progressListener.onComplete(true);
 
         } catch (final Throwable ex) {
+            System.out.println(ex);
             progressListener.onComplete(false);
         }
     }
@@ -222,6 +226,7 @@ public class ThetaAnalyser implements Analyser {
         logger = new FileLogger(Logger.Level.valueOf(configurationEntity.getLogLevel()),"/tmp/theta/logs/" + jobEntity.getJobId().toString() + ".txt", true, true);
 
         try {
+            progressListener.onBegin();
             final Stopwatch sw = Stopwatch.createStarted();
             final XSTS xsts = modelService.loadXstsModel(modelEntity, configurationEntity);
             final XstsConfig<?, ?, ?> configuration = buildConfiguration(xsts, configurationEntity);
@@ -233,9 +238,13 @@ public class ThetaAnalyser implements Analyser {
             jobEntity.setSafe(result.isSafe());
             jobEntity.setBenchmark(analysisBenchmarkEntity);
 
-            if (result.isUnsafe() && configurationEntity.getCexFile() != null) {
+            if (result.isUnsafe() && configurationEntity.getCexFile()) {
                 writeXstsCex(result.asUnsafe(), xsts, jobEntity);
             }
+
+            jobRepository.save(jobEntity);
+            progressListener.onComplete(true);
+
         } catch (final Throwable ex) {
             progressListener.onComplete(false);
         }
@@ -275,7 +284,7 @@ public class ThetaAnalyser implements Analyser {
             return new XstsConfigBuilder(XstsConfigBuilder.Domain.valueOf(configuration.getDomainName()),
                     XstsConfigBuilder.Refinement.valueOf(configuration.getRefinement()),
                     Z3SolverFactory.getInstance())
-                    .maxEnum(configuration.getMaxEnum())
+                    .maxEnum(configuration.getMaxEnum() == null ? 0 : configuration.getMaxEnum())
                     .initPrec(XstsConfigBuilder.InitPrec.valueOf(configuration.getInitPrec()))
                     .pruneStrategy(PruneStrategy.valueOf(configuration.getPruneStrategy()))
                     .search(XstsConfigBuilder.Search.valueOf(configuration.getSearch()))
@@ -380,6 +389,7 @@ public class ThetaAnalyser implements Analyser {
         try {
             printWriter = new PrintWriter(file);
             printWriter.write(concrTrace.toString());
+            jobEntity.setCexFile(true);
         } finally {
             if (printWriter != null) {
                 printWriter.close();

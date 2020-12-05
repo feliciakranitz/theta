@@ -1,6 +1,7 @@
 package hu.bme.mit.theta.cloud.rest.endpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hu.bme.mit.theta.cloud.blobstore.LocalBlobStore;
 import hu.bme.mit.theta.cloud.repository.datamodel.JobEntity;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.contollers.JobsApi;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.contollers.NotFoundException;
@@ -9,12 +10,15 @@ import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.AnalysisBenchmark;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.JobResponse;
 import hu.bme.mit.theta.cloud.rest.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +27,8 @@ public class JobController implements JobsApi {
 
     @Autowired
     private JobService jobService;
+
+    private final LocalBlobStore localBlobStore= new LocalBlobStore();
 
     @Override
     public Optional<ObjectMapper> getObjectMapper() {
@@ -35,8 +41,8 @@ public class JobController implements JobsApi {
     }
 
     @Override
-    public ResponseEntity<ArrayList<JobResponse>> getAllJobs() {
-        ArrayList<JobResponse> jobResponses = jobService.getAllJob();
+    public ResponseEntity<List<JobResponse>> getAllJobs() {
+        List<JobResponse> jobResponses = jobService.getAllJob();
         return ResponseEntity.ok(jobResponses);
     }
 
@@ -47,7 +53,7 @@ public class JobController implements JobsApi {
             JobResponse jobResponse = new JobResponse();
             jobResponse.setJobId(jobEntity.getJobId());
             jobResponse.setStatus(jobEntity.getStatus());
-            jobResponse.setFileName(jobEntity.getModel().getModelId());
+            jobResponse.setFileName(jobEntity.getModel().getFileName());
             jobResponse.setHasCex(jobEntity.isCexFile());
             jobResponse.setIsSafe(jobEntity.isSafe());
 
@@ -65,17 +71,23 @@ public class JobController implements JobsApi {
 
             return ResponseEntity.ok(jobResponse);
         } catch (NotFoundException e) {
-           return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
     }
 
     @Override
     public ResponseEntity<Resource> getCexFile(UUID jobId) {
-        return null;
+        try {
+            FileSystemResource cexFile = jobService.getCexFile(jobId);
+            return ResponseEntity.ok().body(cexFile);
+        } catch (NotFoundException | IOException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @Override
     public ResponseEntity<Resource> getLogFile(UUID jobId) {
-        return null;
+        FileSystemResource logFile = localBlobStore.getLogBlob(jobId);
+        return ResponseEntity.ok().body(logFile);
     }
 }

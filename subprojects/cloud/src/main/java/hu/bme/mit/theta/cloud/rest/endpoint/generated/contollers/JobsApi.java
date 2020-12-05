@@ -6,6 +6,7 @@
 package hu.bme.mit.theta.cloud.rest.endpoint.generated.contollers;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.AllJobsResponse;
@@ -45,7 +46,7 @@ public interface JobsApi {
     @RequestMapping(value = "/jobs",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<ArrayList<JobResponse>> getAllJobs();
+    ResponseEntity<List<JobResponse>> getAllJobs();
 
 
     @Operation(summary = "", description = "Get the result of the analysis with the given Id", tags={ "job" })

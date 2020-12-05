@@ -12,6 +12,7 @@ import hu.bme.mit.theta.cloud.workQueue.WorkQueue;
 import hu.bme.mit.theta.solver.SolverFactory;
 import hu.bme.mit.theta.solver.z3.Z3SolverFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,15 +100,15 @@ public class JobService {
         return jobRepository.findById(jobId).orElseThrow(this::jobNotFoundException);
     }
 
-    public ArrayList<JobResponse> getAllJob() {
-        ArrayList<JobResponse> jobResponses = new ArrayList<>();
+    public List<JobResponse> getAllJob() {
+        List<JobResponse> jobResponses = new ArrayList<>();
         List<JobEntity> jobEntities = jobRepository.findAll();
         for (JobEntity jobEntity: jobEntities) {
             JobResponse jobResponse = new JobResponse();
 
             jobResponse.setJobId(jobEntity.getJobId());
             jobResponse.setStatus(jobEntity.getStatus());
-            jobResponse.setFileName(jobEntity.getModel().getModelId());
+            jobResponse.setFileName(jobEntity.getModel().getFileName());
             jobResponse.setHasCex(jobEntity.isCexFile());
             jobResponse.setIsSafe(jobEntity.isSafe());
 
@@ -130,6 +131,12 @@ public class JobService {
         }
         return jobResponses;
     }
+
+    public FileSystemResource getCexFile(UUID jobId) throws NotFoundException, IOException {
+        String format = getJob(jobId).getConfig().getConfigType() == "XTA" ? "dot" : "txt";
+        return localBlobStore.getCexBlob(jobId, format);
+    }
+
 
     private NotFoundException jobNotFoundException() {
         return new NotFoundException(0, "Job not found by id");

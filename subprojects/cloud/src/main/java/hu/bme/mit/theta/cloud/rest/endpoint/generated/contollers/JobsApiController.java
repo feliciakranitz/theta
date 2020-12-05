@@ -1,6 +1,7 @@
 package hu.bme.mit.theta.cloud.rest.endpoint.generated.contollers;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.AllJobsResponse;
@@ -44,13 +45,13 @@ public class JobsApiController implements JobsApi {
         return Optional.ofNullable(request);
     }
 
-    public ResponseEntity<ArrayList<JobResponse>> getAllJobs() {
+    public ResponseEntity<List<JobResponse>> getAllJobs() {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
-            return new ResponseEntity<ArrayList<JobResponse>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<List<JobResponse>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity<ArrayList<JobResponse>>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<List<JobResponse>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     public ResponseEntity<JobResponse> getAnalysisResult(@Parameter(in = ParameterIn.PATH, description = "The analysis job id", required=true, schema=@Schema()) @PathVariable("jobId") UUID jobId) {

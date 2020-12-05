@@ -47,7 +47,16 @@ public class LocalBlobStore {
 
     public FileSystemResource getVisualizedBlob(UUID modelId, String fileFormat) {
         Path filePath = Paths.get(basePath + "/visualized/" + modelId + "." + fileFormat);
-        System.out.println(filePath);
+        return new FileSystemResource(filePath);
+    }
+
+    public FileSystemResource getCexBlob(UUID jobId, String fileFormat) {
+        Path filePath = Paths.get(basePath + "/cexFiles/" + jobId + "." + fileFormat);
+        return new FileSystemResource(filePath);
+    }
+
+    public FileSystemResource getLogBlob(UUID jobId) {
+        Path filePath = Paths.get(basePath + "/logs/" + jobId + ".txt");
         return new FileSystemResource(filePath);
     }
 }

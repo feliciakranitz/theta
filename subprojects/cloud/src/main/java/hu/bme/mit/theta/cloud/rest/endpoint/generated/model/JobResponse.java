@@ -15,7 +15,7 @@ public class JobResponse   {
   private UUID jobId = null;
 
   @JsonProperty("fileName")
-  private UUID fileName = null;
+  private String fileName = null;
 
   @JsonProperty("isSafe")
   private Boolean isSafe = null;
@@ -47,7 +47,7 @@ public class JobResponse   {
     this.jobId = jobId;
   }
 
-  public JobResponse fileName(UUID fileName) {
+  public JobResponse fileName(String fileName) {
     this.fileName = fileName;
     return this;
   }
@@ -57,11 +57,11 @@ public class JobResponse   {
    * @return fileName
    **/
   @Schema(description = "")
-    public UUID getFileName() {
+    public String getFileName() {
     return fileName;
   }
 
-  public void setFileName(UUID fileName) {
+  public void setFileName(String fileName) {
     this.fileName = fileName;
   }
 

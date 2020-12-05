@@ -99,6 +99,7 @@ public class ConfigService {
             configurationEntity.setPredSplit(config.getPredSplit().toString());
             configurationEntity.setSearch(config.getSearch().toString());
             configurationEntity.setInitPrec(config.getInitPrec().toString());
+            configurationEntity.setMaxEnum(config.getMaxEnum());
             configurationEntity.setPruneStrategy(config.getPruneStrategy().toString());
             configurationEntity.setLogLevel(config.getLogLevel().toString());
             configurationEntity.setStacktrace(config.isStacktrace());

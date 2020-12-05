@@ -41,13 +41,13 @@ public class ModelController implements ModelApi {
 
     @Override
     public ResponseEntity<Resource> getModelFile(UUID modelId) {
-        FileSystemResource modelFile = null;
         try {
-            modelFile = modelService.getModelFile(modelId);
+            FileSystemResource modelFile = modelService.getModelFile(modelId);
+            return ResponseEntity.ok().body(modelFile);
+
         } catch (NotFoundException | IOException e) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().body(modelFile);
     }
 
     @Override
