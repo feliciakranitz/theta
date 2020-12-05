@@ -16,6 +16,9 @@ public class ConfigurationEntity {
     @Column(name = "configuration_id")
     private UUID configurationId;
 
+    @Column(name = "config_type")
+    private String configType;
+
     @Column(name = "domain_name")
     private String domainName;
 
@@ -204,5 +207,13 @@ public class ConfigurationEntity {
 
     public void setProperty(String property) {
         this.property = property;
+    }
+
+    public String getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(String configType) {
+        this.configType = configType;
     }
 }

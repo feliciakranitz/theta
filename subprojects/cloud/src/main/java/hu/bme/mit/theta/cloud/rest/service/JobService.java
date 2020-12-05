@@ -6,9 +6,7 @@ import hu.bme.mit.theta.cloud.repository.JobRepository;
 import hu.bme.mit.theta.cloud.repository.datamodel.ConfigurationEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.JobEntity;
 import hu.bme.mit.theta.cloud.repository.datamodel.ModelEntity;
-import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.AnalysisBenchmark;
-import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.AnalysisConfig;
-import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.JobResponse;
+import hu.bme.mit.theta.cloud.rest.endpoint.generated.model.*;
 import hu.bme.mit.theta.cloud.workQueue.RabbitWorkQueue;
 import hu.bme.mit.theta.cloud.workQueue.WorkQueue;
 import hu.bme.mit.theta.solver.SolverFactory;
@@ -41,26 +39,60 @@ public class JobService {
     public JobService() throws IOException {
     }
 
-    public void startAnalysis(UUID modelId, List<AnalysisConfig> configs) throws Exception {
+    public void startCfaAnalysis(UUID modelId, StartCfaProcessRequest body) throws Exception {
 
-        List<ConfigurationEntity> configurationEntities = configService.createConfiguration(configs);
+        List<ConfigurationEntity> configurationEntities = configService.createCfaConfiguration(body.getConfigs());
         ModelEntity modelEntity = modelService.getModelMetadata(modelId);
 
-        int index = 0;
+        createJob(modelEntity, configurationEntities, body.getNotificationAddress());
+
+    }
+
+    public void startStsAnalysis(UUID modelId, StartStsProcessRequest body) throws Exception {
+
+        List<ConfigurationEntity> configurationEntities = configService.createStsConfiguration(body.getConfigs());
+        ModelEntity modelEntity = modelService.getModelMetadata(modelId);
+
+        createJob(modelEntity, configurationEntities, body.getNotificationAddress());
+
+    }
+
+    public void startXtaAnalysis(UUID modelId, StartXtaProcessRequest body) throws Exception {
+
+        List<ConfigurationEntity> configurationEntities = configService.createXtaConfiguration(body.getConfigs());
+        ModelEntity modelEntity = modelService.getModelMetadata(modelId);
+
+        createJob(modelEntity, configurationEntities, body.getNotificationAddress());
+
+    }
+
+    public void startXstsAnalysis(UUID modelId, StartXstsProcessRequest body) throws Exception {
+
+        List<ConfigurationEntity> configurationEntities = configService.createXstsConfiguration(body.getConfigs());
+        ModelEntity modelEntity = modelService.getModelMetadata(modelId);
+
+        createJob(modelEntity, configurationEntities, body.getNotificationAddress());
+
+    }
+
+    private void createJob(ModelEntity modelEntity, List<ConfigurationEntity> configurationEntities, String notificationAddress) throws Exception {
         for (ConfigurationEntity configurationEntity : configurationEntities) {
             JobEntity jobEntity = new JobEntity();
 
             jobEntity.setModel(modelEntity);
-            jobEntity.setNotificationAddress(configs.get(index++).getNotificationAddress());
+            jobEntity.setNotificationAddress(notificationAddress);
             jobEntity.setConfig(configurationEntity);
             jobEntity.setStatus(JobStatus.WAITING.toString());
             jobEntity.setProgress(0);
 
             jobEntity = jobRepository.saveAndFlush(jobEntity);
 
-            workQueue.pushWork(jobEntity.getJobId().toString());
+            try {
+                workQueue.pushWork(jobEntity.getJobId().toString());
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
         }
-
     }
 
     public JobEntity getJob(UUID jobId) throws NotFoundException {

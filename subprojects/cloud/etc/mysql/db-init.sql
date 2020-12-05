@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS model (
 
 CREATE TABLE IF NOT EXISTS configuration (
   configurationId CHAR(36) PRIMARY KEY,
+  configType VARCHAR(15),
   domainName VARCHAR(60),
   refinement VARCHAR(60),
   predSplit VARCHAR(60),

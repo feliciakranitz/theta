@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
 
 /**
  * XstsConfig
@@ -229,7 +228,7 @@ public class XstsConfig   {
   private InitPrecEnum initPrec = InitPrecEnum.EMPTY;
 
   @JsonProperty("maxEnum")
-  private BigDecimal maxEnum = 0;
+  private Integer maxEnum = 0;
 
   @JsonProperty("cexFile")
   private Boolean cexFile = false;
@@ -279,7 +278,7 @@ public class XstsConfig   {
   private LogLevelEnum logLevel = LogLevelEnum.SUBSTEP;
 
   @JsonProperty("property")
-  private OneOfXstsConfigProperty property = null;
+  private String property = null;
 
   public XstsConfig domain(DomainEnum domain) {
     this.domain = domain;
@@ -389,7 +388,7 @@ public class XstsConfig   {
     this.initPrec = initPrec;
   }
 
-  public XstsConfig maxEnum(BigDecimal maxEnum) {
+  public XstsConfig maxEnum(Integer maxEnum) {
     this.maxEnum = maxEnum;
     return this;
   }
@@ -399,11 +398,11 @@ public class XstsConfig   {
    * @return maxEnum
    **/
   @Schema(description = "Maximal number of explicitly enumerated successors ( zero is  unlimited)")
-    public BigDecimal getMaxEnum() {
+    public Integer getMaxEnum() {
     return maxEnum;
   }
 
-  public void setMaxEnum(BigDecimal maxEnum) {
+  public void setMaxEnum(Integer maxEnum) {
     this.maxEnum = maxEnum;
   }
 
@@ -461,7 +460,7 @@ public class XstsConfig   {
     this.logLevel = logLevel;
   }
 
-  public XstsConfig property(OneOfXstsConfigProperty property) {
+  public XstsConfig property(String property) {
     this.property = property;
     return this;
   }
@@ -471,11 +470,11 @@ public class XstsConfig   {
    * @return property
    **/
   @Schema(description = "")
-    public OneOfXstsConfigProperty getProperty() {
+    public String getProperty() {
     return property;
   }
 
-  public void setProperty(OneOfXstsConfigProperty property) {
+  public void setProperty(String property) {
     this.property = property;
   }
 

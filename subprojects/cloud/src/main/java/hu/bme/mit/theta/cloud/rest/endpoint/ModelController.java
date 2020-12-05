@@ -72,18 +72,6 @@ public class ModelController implements ModelApi {
     }
 
     @Override
-    public ResponseEntity<List<StartProcessResponse>> startAnalysis(UUID modelId, List<AnalysisConfig> body) {
-        try {
-            jobService.startAnalysis(modelId, body);
-            return ResponseEntity.accepted().build();
-        } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @Override
     public ResponseEntity<CreateModelResponse> uploadModel(MultipartFile model) {
         CreateModelResponse createModelResponse = new CreateModelResponse();
         createModelResponse.setFileName("filename");
@@ -99,6 +87,54 @@ public class ModelController implements ModelApi {
             return ResponseEntity.notFound().build();
         }
 
+    }
+
+    @Override
+    public ResponseEntity<List<StartProcessResponse>> startCfaAnalysis(UUID modelId, StartCfaProcessRequest body) {
+        try {
+            jobService.startCfaAnalysis(modelId, body);
+            return ResponseEntity.accepted().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<StartProcessResponse>> startStsAnalysis(UUID modelId, StartStsProcessRequest body) {
+        try {
+            jobService.startStsAnalysis(modelId, body);
+            return ResponseEntity.accepted().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<StartProcessResponse>> startXstsAnalysis(UUID modelId, StartXstsProcessRequest body) {
+        try {
+            jobService.startXstsAnalysis(modelId, body);
+            return ResponseEntity.accepted().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<StartProcessResponse>> startXtaAnalysis(UUID modelId, StartXtaProcessRequest body) {
+        try {
+            jobService.startXtaAnalysis(modelId, body);
+            return ResponseEntity.accepted().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 }

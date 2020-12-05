@@ -78,20 +78,6 @@ public interface ModelApi {
     ResponseEntity<GetModelMetricsResponse> getModelMetrics(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId);
 
 
-    @Operation(summary = "", description = "Starts analysis process on the model with the given parameters", tags={ "job" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Analysis started successfully", content = @Content(array = @ArraySchema(schema = @Schema(implementation = StartProcessResponse.class)))),
-        
-        @ApiResponse(responseCode = "404", description = "Model with the given id not found"),
-        
-        @ApiResponse(responseCode = "500", description = "The error response if something goes wrong.") })
-    @RequestMapping(value = "/model/{modelId}",
-        produces = { "application/json" }, 
-        consumes = { "application/json" }, 
-        method = RequestMethod.POST)
-    ResponseEntity<List<StartProcessResponse>> startAnalysis(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())  @RequestBody List<AnalysisConfig> body);
-
-
     @Operation(summary = "Upload model file", description = "", tags={ "model" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "201", description = "model uploaded successfully", content = @Content(schema = @Schema(implementation = CreateModelResponse.class))),
@@ -116,17 +102,59 @@ public interface ModelApi {
         method = RequestMethod.GET)
     ResponseEntity<Resource> visualizeModel(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId);
 
-    @Operation(summary = "", description = "Starts analysis process on the model with the given parameters", tags={ "job" })
+    @Operation(summary = "", description = "Starts cfa analysis process on the model with the given parameters", tags={ "job" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Analysis started successfully", content = @Content(array = @ArraySchema(schema = @Schema(implementation = StartProcessResponse.class)))),
 
             @ApiResponse(responseCode = "404", description = "Model with the given id not found"),
 
             @ApiResponse(responseCode = "500", description = "The error response if something goes wrong.") })
-    @RequestMapping(value = "/model/{modelId}",
+    @RequestMapping(value = "/model/cfa/{modelId}",
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<List<StartProcessResponse>> startAnalysis2(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())  @RequestBody Body1 body);
+    ResponseEntity<List<StartProcessResponse>> startCfaAnalysis(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())  @RequestBody StartCfaProcessRequest body);
+
+
+    @Operation(summary = "", description = "Starts sts analysis process on the model with the given parameters", tags={ "job" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Analysis started successfully", content = @Content(array = @ArraySchema(schema = @Schema(implementation = StartProcessResponse.class)))),
+
+            @ApiResponse(responseCode = "404", description = "Model with the given id not found"),
+
+            @ApiResponse(responseCode = "500", description = "The error response if something goes wrong.") })
+    @RequestMapping(value = "/model/sts/{modelId}",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<List<StartProcessResponse>> startStsAnalysis(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())  @RequestBody StartStsProcessRequest body);
+
+
+    @Operation(summary = "", description = "Starts xsts analysis process on the model with the given parameters", tags={ "job" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Analysis started successfully", content = @Content(array = @ArraySchema(schema = @Schema(implementation = StartProcessResponse.class)))),
+
+            @ApiResponse(responseCode = "404", description = "Model with the given id not found"),
+
+            @ApiResponse(responseCode = "500", description = "The error response if something goes wrong.") })
+    @RequestMapping(value = "/model/xsts/{modelId}",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<List<StartProcessResponse>> startXstsAnalysis(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())  @RequestBody StartXstsProcessRequest body);
+
+
+    @Operation(summary = "", description = "Starts xta analysis process on the model with the given parameters", tags={ "job" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Analysis started successfully", content = @Content(array = @ArraySchema(schema = @Schema(implementation = StartProcessResponse.class)))),
+
+            @ApiResponse(responseCode = "404", description = "Model with the given id not found"),
+
+            @ApiResponse(responseCode = "500", description = "The error response if something goes wrong.") })
+    @RequestMapping(value = "/model/xta/{modelId}",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<List<StartProcessResponse>> startXtaAnalysis(@Parameter(in = ParameterIn.PATH, description = "The model id", required=true, schema=@Schema()) @PathVariable("modelId") UUID modelId, @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())  @RequestBody StartXtaProcessRequest body);
 }
 
